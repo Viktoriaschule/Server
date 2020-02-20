@@ -1,6 +1,5 @@
 import express from 'express';
 import { UpdateData } from '../utils/interfaces';
-import { getSubstitutionPlanVersion } from '../substitution_plan/sp_butler';
 import { getGrade } from '../authentication/ldap';
 import getAuth from '../utils/auth';
 import { getUpdates } from './update_db';

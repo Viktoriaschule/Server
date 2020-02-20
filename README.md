@@ -8,11 +8,11 @@
     - Firebaseprojekt -> Einstellungen (oben links) -> Dienstkonten -> Neuen privaten Schlüssel generieren
     - Bennene die Datei `firebase.json` und verschiebe sie ins Hauptverzeichnis des Servers
 5. Falls `yarn` noch nicht installiert ist, [installiere](https://classic.yarnpkg.com/en/docs/install/) es jetzt
-6. Installiere alle packages: `yarn install`
+6. Installiere alle Packages: `yarn install`
 7. Starte den Server `yarn start`, oder ein bestimmtes Modul: `yarn MODUL`
     - Alle Module sind in der `package.json` Datei zu finden
     
-### Als dauerlösung auf einem Linux Server
+### Als Dauerlösung auf einem Linux Server
 1. Alles aus dem Abschnitt [Konfiguration](#konfiguration)
 2. Webservice auf den in der `config.json` festgelegten Port configurieren
 3. Damit der Server automatisch gestartet wird, aber auch jederzeit gestoppt und neugestartet werden kann, wird ein Service erstellt:

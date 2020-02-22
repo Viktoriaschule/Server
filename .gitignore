@@ -60,9 +60,11 @@ typings/
 # next.js build output
 .next
 
+# IntelliJ config files
+.idea
+
 /tmp
 /js
-ldap.json
 bugs.json
 config.json
 firebase.json

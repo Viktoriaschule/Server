@@ -1,12 +1,11 @@
 import config from '../utils/config';
 import request from 'request';
-import { parse } from 'node-html-parser';
+import {parse} from 'node-html-parser';
 import extractData from './cafetoria_parser';
-import path from 'path';
-import fs from 'fs';
-import { Cafetoria } from '../utils/interfaces';
-import { compareLatestCafetoria, setLatestCafetoria } from '../history/history';
-import { rejects } from 'assert';
+import {Cafetoria} from '../utils/interfaces';
+import {compareLatestCafetoria, setLatestCafetoria} from '../history/history';
+import {initFirebase} from "../utils/firebase";
+import {initDatabase} from "../utils/database";
 
 const isDev = process.argv.length === 3;
 
@@ -90,7 +89,7 @@ export const fetchDataForUser = async (id: string, pin: string): Promise<Cafetor
             }).catch(reject);
         });
     }
-    return { error: 'Credentials must not be null', saldo: undefined, days: [] };
+    return {error: 'Credentials must not be null', saldo: undefined, days: []};
 };
 
 /**
@@ -108,12 +107,12 @@ export const download = (checkIfNew = true): Promise<Cafetoria | undefined> => {
                 resolve(menus);
             }
             resolve(undefined);
-        }).catch(() => {
-            reject('Wrong Cafetoria credentials');
-        });
+        }).catch(reject);
     });
 }
 
+// If this file is started direct from the command line and was not imported
 if (module.parent === null) {
-    download().catch((reason) => console.log(reason));
+    initFirebase();
+    initDatabase().then(() => download().catch((reason) => console.log(reason)));
 }

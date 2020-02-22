@@ -7,11 +7,12 @@
 4. Lade den privaten Firebase Schlüssel herunter
     - Firebaseprojekt -> Einstellungen (oben links) -> Dienstkonten -> Neuen privaten Schlüssel generieren
     - Bennene die Datei `firebase.json` und verschiebe sie ins Hauptverzeichnis des Servers
-5. Falls `yarn` noch nicht installiert ist, [installiere](https://classic.yarnpkg.com/en/docs/install/) es jetzt
-6. Installiere alle Packages: `yarn install`
-7. Starte den Server `yarn start`, oder ein bestimmtes Modul: `yarn MODUL`
+5. Speichere den Stundenplanexport (`Schuldatentransfer UNSTF`) unter `unstf.txt` (Sollte `ISO-8859` bleiben und nicht nach `UTF-8` konvertiert werden)
+6. Falls `yarn` noch nicht installiert ist, [installiere](https://classic.yarnpkg.com/en/docs/install/) es jetzt
+7. Installiere alle Packages: `yarn install`
+8. Starte den Server `yarn start`, oder ein bestimmtes Modul: `yarn MODUL`
     - Alle Module sind in der `package.json` Datei zu finden
-    
+
 ### Als Dauerlösung auf einem Linux Server
 1. Alles aus dem Abschnitt [Konfiguration](#konfiguration)
 2. Webservice auf den in der `config.json` festgelegten Port configurieren

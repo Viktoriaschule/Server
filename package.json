@@ -2,7 +2,7 @@
   "name": "Server3",
   "version": "2.0.0",
   "main": "src/index.ts",
-  "repository": "https://github.com/VsaApp/Server3.git",
+  "repository": "https://github.com/Viktoriaschule/Server.git",
   "author": "Jan-Luca D.",
   "license": "GPL-3.0",
   "private": false,
@@ -20,7 +20,8 @@
     "calendar": "./node_modules/.bin/ts-node src/calendar/calendar_download.ts",
     "teachers": "./node_modules/.bin/ts-node src/teachers/teachers_download.ts",
     "workgroups": "./node_modules/.bin/ts-node src/workgroups/workgroups_download.ts",
-    "subjects": "./node_modules/.bin/ts-node src/subjects/subjects_download.ts"
+    "subjects": "./node_modules/.bin/ts-node src/subjects/subjects_download.ts",
+    "aixformation": "./node_modules/.bin/ts-node src/aixformation/axf_download.ts"
   },
   "dependencies": {
     "@types/body-parser": "^1.17.1",

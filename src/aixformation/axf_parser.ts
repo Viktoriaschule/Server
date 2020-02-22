@@ -20,16 +20,16 @@ const parseAiXformation = (raw: string, rawUsers: string, rawTags: string): AiXf
 
     aixformation.posts = posts.map((rawPost: any) => {
         const post: Post = {
-            id: rawPost.id,
-            title: rawPost.title.rendered,
-            content: rawPost.content.rendered,
-            url: rawPost.guid.rendered,
-            date: rawPost.date,
-            thumbnailUrl: rawPost.jetpack_featured_media_url,
+            id: rawPost.id || '',
+            title: rawPost.title?.rendered || '',
+            content: rawPost.content?.rendered || '',
+            url: rawPost.guid?.rendered || '',
+            date: rawPost.date || '',
+            thumbnailUrl: rawPost.jetpack_featured_media_url || '',
             mediumUrl: '',
-            fullUrl: rawPost.link,
-            author: users[rawPost.author].name,
-            tags: rawPost.tags.map((tag: number) => tags[tag].name)
+            fullUrl: rawPost.link || '',
+            author: users[rawPost.author]?.name || '',
+            tags: rawPost.tags.map((tag: number) => tags[tag]?.name || '').filter((tag: string) => tag.length > 0)
         };
         return post;
     });

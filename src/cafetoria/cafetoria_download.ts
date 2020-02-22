@@ -56,9 +56,7 @@ const fetchData = async (id: string, pin: string): Promise<string> => {
                                 jar: cookieJar
                             }, (error, response, body) => {
                                 if (response.statusCode !== 200) {
-                                    reject({
-                                        error: 'Invalid cafetoria credentials'
-                                    });
+                                    reject('Invalid cafetoria credentials');
                                     return;
                                 }
                                 resolve(body);

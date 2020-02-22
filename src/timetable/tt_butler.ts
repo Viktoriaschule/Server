@@ -1,16 +1,16 @@
 import express from 'express';
 import download from './tt_download';
-import { sendNotification } from '../utils/notification';
-import { updateApp } from '../utils/update_app';
-import { Timetables, Device } from '../utils/interfaces';
+import {Device, Timetables} from '../utils/interfaces';
 import getAuth from '../utils/auth';
-import { getGrade } from '../authentication/ldap';
-import { getUsers, getDevices, getAllDevices } from '../tags/tags_db';
-import getLocalization from '../utils/localizations';
-import { loadData, saveData, shouldForceUpdate } from '../utils/data';
+import {getGrade} from '../authentication/ldap';
+import {getAllDevices, getDevices, getUsers} from '../tags/tags_db';
+import {loadData, saveData, shouldForceUpdate} from '../utils/data';
+import {updateApp} from "../utils/update_app";
+import {sendNotification} from "../utils/notification";
+import getLocalization from "../utils/localizations";
 
 export const timetableRouter = express.Router();
-const defaultValue: Timetables = { date: new Date().toISOString(), grades: {} };
+const defaultValue: Timetables = {date: new Date().toISOString(), grades: {}};
 
 timetableRouter.get('/', async (req, res) => {
     const auth = getAuth(req);
@@ -95,9 +95,10 @@ export const sendNotifications = async (isDev: boolean): Promise<void> => {
         });
 
         // Inform the app about a new timetable
-        await updateApp('All', {
+        await updateApp({
             'type': 'timetable',
-            'action': 'update'
+            'action': 'update',
+            'weekday': '', // This is totally a bug, but I can't figure out why it's needed, but it doesn't make sense in any way - signed jld3103
         }, isDev);
     } catch (e) {
         console.error('Failed to send notifications', e);

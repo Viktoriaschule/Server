@@ -1,11 +1,11 @@
 import crypto from 'crypto';
-import { updateApp } from '../utils/update_app';
-import { sendNotification } from '../utils/notification';
-import { Device, SubstitutionPlan } from '../utils/interfaces';
-import { getSubstitutionsForUser } from './sp_filter';
-import { getUsers, getDevices, getPreference, getNotification, setNotification } from '../tags/tags_db';
+import {updateApp} from '../utils/update_app';
+import {sendNotification} from '../utils/notification';
+import {Device, SubstitutionPlan} from '../utils/interfaces';
+import {getSubstitutionsForUser} from './sp_filter';
+import {getDevices, getNotification, getPreference, getUsers, setNotification} from '../tags/tags_db';
 import getLocalization from '../utils/localizations';
-import { getSubject, getSubjects } from '../subjects/subjects_butler';
+import {getSubjects} from '../subjects/subjects_butler';
 
 /**
  * Sends substitution plan notifications to all devices
@@ -36,7 +36,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
             try {
                 const substitutions = await getSubstitutionsForUser(user, substitutionplanDay);
                 const subjects = await getSubjects();
-                
+
                 var text = substitutions.map((s) => {
                     const unsure = s.courseID === undefined && s.id === undefined;
                     let text = ''
@@ -83,8 +83,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                             deviceCount++;
                             devices.push(device);
                         }
-                    }
-                    catch (e) {
+                    } catch (e) {
                         console.error(day + ': ' + `Cannot send notification to ${user.username}'s device: ${device.firebaseId}:`, e);
                     }
                 }
@@ -109,13 +108,12 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                         weekday: weekday.toString()
                     }
                 });
-            }
-            catch (e) {
+            } catch (e) {
                 console.error(`Cannot send notification:`, e);
             }
         }
 
-        await updateApp('All', {
+        await updateApp({
             'type': 'substitution plan',
             'action': 'update',
             'day': day.toString(),

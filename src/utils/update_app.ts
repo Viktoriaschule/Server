@@ -3,9 +3,9 @@ import { User, Device } from "./interfaces";
 import { isDeveloper } from "./auth";
 import { getAllDevices, getUsers, getDevices } from '../tags/tags_db';
 
-export const updateApp = async (segment: string, data: any, dev?: boolean): Promise<void> => {
+export const updateApp = async (data: any, dev?: boolean): Promise<void> => {
     if (!dev) dev = false;
-    
+
     let devices: Device[] = [];
     if (dev) {
         let users = await getUsers(dev);

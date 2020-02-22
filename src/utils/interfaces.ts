@@ -35,22 +35,22 @@ export interface Unit {
 //TODO: Delete week in id
 export interface Subject {
     /** starts with 0; 6. unit is the lunch break */
-    unit: number;  
+    unit: number;
     /** Format: GRADE-WEEK-DAY-UNIT-SUBJECT_INDEX (lowercase) */
-    id: string;  
+    id: string;
     /** Format: GRADE-COURSE(BLOCK+TEACHER)-SUBJECT (lowercase) */
-    courseID: string;  
+    courseID: string;
     /** subject shorthand for example "e"; "s" */
-    subjectID: string; 
+    subjectID: string;
     /** teacher shorthand (lowercase). Multiple teachers for one subject are separated with '+'.
-     * 
+     *
      * Example: 'him+kan' or only 'him'
      */
     teacherID: string;
     /** lowercase */
     roomID: string;
     /** 0 => A; 1 => B; 2 => AB */
-    week: number; 
+    week: number;
     block: string;
 }
 
@@ -61,7 +61,7 @@ export interface SubstitutionPlan {
     /** ISO 8601 */
     updated: string;
     /** 0 => A; 1 => B */
-    week: number; 
+    week: number;
     unparsed: SubstitutionPlanGrades;
     data: SubstitutionPlanGrades
 }
@@ -96,7 +96,7 @@ export interface SubstitutionDetails {
 
 // Updates
 export interface UpdateData {
-    timetable: string; // 
+    timetable: string; //
     substitutionPlan: string;
     cafetoria: string;
     calendar: string;
@@ -112,7 +112,7 @@ export interface Tags {
     /** Grade in lowercase */
     grade: string;
     /** 1 (pupil); 2 (teacher); 4 (developer); 8 (other) */
-    group: number; 
+    group: number;
     selected: Selection[]; // course list
     exams: Exam[]; // course list
     cafetoria: CafetoriaLogin;
@@ -132,10 +132,10 @@ export interface LdapUser {
 
 export interface User {
     username: string;
-    /** Grade in lowercase */ 
+    /** Grade in lowercase */
     grade: string;
     /** 1 (pupil); 2 (teacher); 4 (developer); 8 (other) */
-    group: number; 
+    group: number;
 }
 
 export interface Selection {
@@ -167,7 +167,7 @@ export interface Device {
 }
 
 /** day index list with notification UPDATED_DAY-DATE_SINCE_EPOCHE-TEXT_HASH
- * 
+ *
  *   example: 28-18229-d8345b3416426541733f126ade0de8b7
  */
 export interface LastNotifications {
@@ -240,11 +240,8 @@ export interface Post {
     id: number;
     date: string;
     title: string;
-    content: string;
     url: string;
-    thumbnailUrl: string;
-    mediumUrl: string;
-    fullUrl: string;
+    imageUrl: string;
     author: string;
     tags: string[];
 }

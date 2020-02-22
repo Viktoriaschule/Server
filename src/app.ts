@@ -16,7 +16,7 @@ import bugsRouter from './bugs/bugs_router';
 import { updateWorkgroups, workgroupsRouter } from './workgroups/workgroups_butler';
 import { initFirebase, removeOldDevices } from './utils/firebase';
 import { initDatabase } from './utils/database';
-import { updatedMinutely, updatedDaily, statusRouter } from './status/status_butler';
+import { updatedMinutely, updatedDaily, statusRouter, updatedHourly } from './status/status_butler';
 import { aixformationRouter, updateAiXformation } from './aixformation/axf_butler';
 
 const app = express();
@@ -55,6 +55,20 @@ const minutely = async (): Promise<void> => {
     setTimeout(minutely, 60000);
     updatedMinutely();
 };
+
+/**
+ * Downloads every hour the aixformation
+ */
+const hourly = async (): Promise<void> => {
+    try {
+        await updateAiXformation();
+    } catch (e) {
+        console.error('Failed to run hourly update:', e);
+    }
+    setTimeout(hourly, 3600000);
+    updatedHourly();
+};
+
 /**
  * Downloads every 24 hours the substitutionPlan
  */
@@ -66,7 +80,6 @@ const daily = async (): Promise<void> => {
         'calendar': async () => await updateCalendar(),
         'cafetoria': async () => await updateCafetoriaMenus(),
         'workgroups': async () => await updateWorkgroups(),
-        'aixformation': async () => await updateAiXformation(),
         'devices': async () => await removeOldDevices(),
     };
     for (var update of Object.keys(updates)) {
@@ -97,6 +110,7 @@ const daily = async (): Promise<void> => {
     await initDatabase();
     initFirebase();
     await daily();
+    await hourly();
     await minutely();
 })();
 

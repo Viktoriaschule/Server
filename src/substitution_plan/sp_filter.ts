@@ -1,6 +1,7 @@
-import { SubstitutionPlan, Substitution, Timetable, Subject, User } from "../utils/interfaces";
+import { SubstitutionPlan, Substitution, Timetable, Subject, User, Timetables } from "../utils/interfaces";
 import { getTimetable, getCourseIDsFromID } from "../timetable/tt_butler";
 import { getSelections, getExams } from "../tags/tags_db";
+import { loadData } from "../utils/data";
 
 const filterSubstitutionPlan = async (substitutionPlan: SubstitutionPlan): Promise<SubstitutionPlan> => {
     const timetable = await getTimetable();
@@ -86,6 +87,7 @@ export const getSubstitutionsForUser = async (user: User, substitutionPlan: Subs
     const selections = await getSelections(user.username) || [];
     const selectedCourses = selections.map((course) => course.courseID);
     const exams = (await getExams(user.username) || []).map((exam) => exam.subject);
+    const timetable = await loadData<Timetables>('timetable', { date: new Date().toISOString(), grades: {} });
 
     return substitutionPlan.data[user.grade].filter((substitution) => {
         // If the server was not able to filter the substitution, select it and it will be marked as unknown
@@ -104,7 +106,7 @@ export const getSubstitutionsForUser = async (user: User, substitutionPlan: Subs
 
         // Retry with the id
         if (substitution.id) {
-            const course = getCourseIDsFromID(user.grade, substitution.id || '');
+            const course = getCourseIDsFromID(timetable, user.grade, substitution.id || '');
             if (selectedCourses.includes(course)) {
                 if (substitution.type === 2) {
                     return exams.includes(substitution.original.subjectID || '-');

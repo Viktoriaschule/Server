@@ -5,7 +5,7 @@ import { Device, SubstitutionPlan } from '../utils/interfaces';
 import { getSubstitutionsForUser } from './sp_filter';
 import { getUsers, getDevices, getPreference, getNotification, setNotification } from '../tags/tags_db';
 import getLocalization from '../utils/localizations';
-import { getSubject } from '../subjects/subjects_butler';
+import { getSubject, getSubjects } from '../subjects/subjects_butler';
 
 /**
  * Sends substitution plan notifications to all devices
@@ -35,12 +35,13 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
         for (let user of users) {
             try {
                 const substitutions = await getSubstitutionsForUser(user, substitutionplanDay);
+                const subjects = await getSubjects();
                 
                 var text = substitutions.map((s) => {
                     const unsure = s.courseID === undefined && s.id === undefined;
                     let text = ''
                     if (unsure) text += '(';
-                    text += `${s.unit + 1}. ${getLocalization('hour')} ${getSubject(s.original.subjectID)} ${s.original.teacherID.toLocaleUpperCase()}`.trim();
+                    text += `${s.unit + 1}. ${getLocalization('hour')} ${subjects[s.original.subjectID]} ${s.original.teacherID.toLocaleUpperCase()}`.trim();
                     text += ': ';
                     if (s.type === 0) text += getLocalization('change');
                     else if (s.type === 1) text += getLocalization('freeLesson');

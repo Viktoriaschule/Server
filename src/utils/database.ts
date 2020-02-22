@@ -8,6 +8,10 @@ export const escapeString = (text: string) => {
     return sqlString.escape(text);
 }
 
+export const unescapeString = (sql: string) => {
+    return sqlString.raw(sql);
+}
+
 export const updateOnlyNonNullAttributes = (values: any, escape = false) => {
     const filtered = Object.keys(values).filter((key) => values[key] != undefined);
     if (filtered.length === 0) return '';
@@ -123,6 +127,8 @@ const createDefaultTables = (): void => {
         'CREATE TABLE IF NOT EXISTS users_notifications (username VARCHAR(8) NOT NULL, day_index INT NOT NULL, hash TEXT, UNIQUE KEY unique_notification (username, day_index)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS data_substitution_plan (date_time VARCHAR(24) NOT NULL, updated VARCHAR(24) NOT NULL, data LONGTEXT NOT NULL, UNIQUE KEY unique_date_time (date_time, updated)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
+    dbConnection.query(
+        'CREATE TABLE IF NOT EXISTS data_loaded (name VARCHAR(19) NOT NULL, data LONGTEXT NOT NULL, UNIQUE KEY unique_name (name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS data_updates (name VARCHAR(19) NOT NULL, value VARCHAR(40) NOT NULL, UNIQUE KEY unique_name (name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(

@@ -7,39 +7,45 @@ import getAuth from '../utils/auth';
 import { getGrade } from '../authentication/ldap';
 import { getUsers, getDevices, getAllDevices } from '../tags/tags_db';
 import getLocalization from '../utils/localizations';
+import { loadData, saveData, shouldForceUpdate } from '../utils/data';
 
 export const timetableRouter = express.Router();
-var timetables: Timetables;
-var timetablePromise: Promise<Timetables | undefined> | undefined;
+const defaultValue: Timetables = { date: new Date().toISOString(), grades: {} };
 
 timetableRouter.get('/', async (req, res) => {
     const auth = getAuth(req);
     const grade = await getGrade(auth.username, auth.password);
-    return res.json(timetables.grades[grade]);
+    return res.json((await loadData<Timetables>('timetable', defaultValue)).grades[grade]);
 });
 
 /**
  * Updates the timetable
  */
 export const updateTimetable = async (): Promise<void> => {
-    timetablePromise = download(timetables !== undefined)
-    timetables = await timetablePromise || timetables;
+    const loaded = await loadData<Timetables>('timetable', defaultValue);
+    return new Promise<void>((resolve, reject) => {
+        download(!shouldForceUpdate(loaded, defaultValue))
+            .then((timetable) => {
+                if (timetable) {
+                    saveData('timetable', timetable);
+                }
+                resolve();
+            }).catch(reject);
+    });
 };
 
 /**
  * Returns the version of the current timetable
  */
-export const getTimetableVersion = (): string => {
-    return timetables.date;
+export const getTimetableVersion = async (): Promise<string> => {
+    return (await loadData<Timetables>('timetable', defaultValue)).date;
 };
 
 /**
  * Returns the current timetable
  */
 export const getTimetable = async (): Promise<Timetables | undefined> => {
-    if (timetables !== undefined) return timetables;
-    if (timetablePromise !== undefined) return await timetablePromise;
-    return undefined;
+    return loadData<Timetables>('timetable', defaultValue);
 }
 
 
@@ -48,7 +54,7 @@ export const getTimetable = async (): Promise<Timetables | undefined> => {
  * @param grade for timetable
  * @param courseID searched [courseID]
  */
-export const getCourseIDsFromID = (grade: string, id: string): string | undefined => {
+export const getCourseIDsFromID = (timetables: Timetables, grade: string, id: string): string | undefined => {
     const timetable = timetables.grades[grade];
     try {
         return timetable.data

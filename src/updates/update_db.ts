@@ -1,4 +1,4 @@
-import { escapeString, runDbCmd, getDbResults } from "../utils/database";
+import { runDbCmd, getDbResults } from "../utils/database";
 import crypto from 'crypto';
 
 /** Saves the loaded data in the databes with the given name */

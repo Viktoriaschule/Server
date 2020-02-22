@@ -7,7 +7,6 @@
     "emailUser": "TEST@EXAMPLE.de",
     "emailKey": "EMAIL_KEY",
     "apiEndpoint": "https://api.vsa.2bad2c0.de/",
-    "isFirstQ": true,
     "developers": ["USERNAME", "USERNAME"],
     "ldapUrl": "URL_TO_LDAP_API",
     "ldapUsername": "LDAP_DEVELOPER_USERNAME",

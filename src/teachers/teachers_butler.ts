@@ -1,17 +1,20 @@
 import express from 'express';
 import download from './teachers_download';
 import { Teacher } from '../utils/interfaces';
+import { loadData, shouldForceUpdate, saveData } from '../utils/data';
 
 export const teachersRouter = express.Router();
-let data: Teacher[] | undefined;
+const defaultData: Teacher[] = [];
 
-teachersRouter.get('/', (req, res) => {
-    return res.json(data);
+teachersRouter.get('/', async (req, res) => {
+    return res.json(await loadData<Teacher[]>('teachers', defaultData));
 });
 
 /**
  * Updates the teacher
  */
 export const updateTeachers = async (): Promise<void> => {
-    data = await download(data === undefined) || data;
+    const data = await loadData<Teacher[]>('teachers', defaultData);
+    const newData = await download(shouldForceUpdate(data, defaultData)) || data;
+    saveData('teachers', newData);
 };

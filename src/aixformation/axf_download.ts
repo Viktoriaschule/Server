@@ -20,7 +20,8 @@ const download = async (): Promise<AiXformation> => {
     const tags = await fetchData(url + '/tags?per_page=100', false);
     const parsed = parseAiXformation(data, users, tags);
 
-    if (isNew(data + users + tags)) {
+    if (await isNew(data + users + tags)) {
+        console.log('Parsed aixformation');
         //TODO: Send notifications
     }
 

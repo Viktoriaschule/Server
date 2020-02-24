@@ -37,7 +37,7 @@ export const removeOldDevices = async () => {
     let count = 0;
     let devices: Device[] = await getAllDevices();
     for (var device of devices) {
-        const success = await send([device.firebaseId], { data: { 'type': 'device check' } });
+        const success = await send([device.firebaseId], {data: {}}, {'dry_run': true});
 
         // Delete the device if the token does not exist or it was since four month inactive
         if (!success || Date.parse(device.lastActive) < fourMonthsAgo.getTime()) {

@@ -129,6 +129,6 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
  * Returns the weekday string of the given index ind the given language
  * @param day index
  */
-const getWeekday = (day: number): string => {
+export const getWeekday = (day: number): string => {
     return getLocalization('weekdays')[day];
 }

@@ -13,9 +13,10 @@ const extractData = (data: any, saldoIsNull = false): Cafetoria => {
     }
     const rawDates = data.querySelectorAll('.MPDatum');
     const dates: CafetoriaDay[] = rawDates.map((a: any) => a.childNodes).map((b: any, day: number): CafetoriaDay => {
+        const rawDate = b[0].childNodes[0].rawText.split('.');
         return {
-            day: day,
-            date: b[0].childNodes[0].rawText,
+            day: day, // TODO: remove unused parameter
+            date: new Date(`${rawDate[2]} ${rawDate[1]} ${rawDate[0]}`).toISOString(),
             menus: []
         };
     });

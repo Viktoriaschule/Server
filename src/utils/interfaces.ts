@@ -187,7 +187,7 @@ export interface Cafetoria {
 }
 
 export interface CafetoriaDay {
-    day: number;
+    day: number; // TODO: remove unused parameter
     date: string;
     menus: Menu[]
 }

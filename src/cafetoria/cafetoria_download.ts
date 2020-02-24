@@ -6,6 +6,7 @@ import {Cafetoria} from '../utils/interfaces';
 import {compareLatestCafetoria, setLatestCafetoria} from '../history/history';
 import {initFirebase} from "../utils/firebase";
 import {initDatabase} from "../utils/database";
+import {sendNotifications} from "./cafetoria_butler";
 
 const isDev = process.argv.length === 3;
 
@@ -101,9 +102,11 @@ export const download = (checkIfNew = true): Promise<Cafetoria | undefined> => {
             console.log('Fetched menus');
             const data = parse(raw);
             console.log('Parsed menus');
-            if (await isNew(data) || isDev || !checkIfNew) {
+            const _isNew = await isNew(data);
+            if (_isNew || isDev || !checkIfNew) {
                 const menus = extractData(data, true);
                 console.log('Extracted menus');
+                if (_isNew || isDev) await sendNotifications(menus, isDev);
                 resolve(menus);
             }
             resolve(undefined);

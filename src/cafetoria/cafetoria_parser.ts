@@ -19,16 +19,16 @@ const extractData = (data: any, saldoIsNull = false): Cafetoria => {
             menus: []
         };
     });
-    const names = data.querySelectorAll('.angebot_text').reverse();
-    const prices = data.querySelectorAll('.angebot_preis').reverse();
+    const names = data.querySelectorAll('.angebot_text');
+    const prices = data.querySelectorAll('.angebot_preis');
     return {
         saldo: saldo,
         error: undefined,
         days: dates.map((date: CafetoriaDay, day: number): CafetoriaDay => {
             let menus: Menu[] = [];
             let extraTime: string = '';
-            for (let i = 0; i < 4; i++) {
-                let text = names[day * 4 + i].childNodes.length >= 1 ? names[day * 4 + i].childNodes.map((a: any) => a.rawText).join(' ').replace('  ', ' ') : '';
+            for (let i = 4; i > 0; i--) {
+                let text = names[day * 4 + i - 1].childNodes.length >= 1 ? names[day * 4 + i - 1].childNodes.map((a: any) => a.rawText).join(' ').replace('  ', ' ') : '';
                 text = entities.decodeHTML(text);
                 let time: string = '';
                 if (text.includes('bis') && text.includes(' Uhr ') && text.includes('abholen')) {
@@ -58,7 +58,7 @@ const extractData = (data: any, saldoIsNull = false): Cafetoria => {
                 menus.push({
                     name: text,
                     time: time,
-                    price: prices[dates.indexOf(date) * 4 + i].childNodes.length == 1 ? parseFloat(prices[dates.indexOf(date) * 4 + i].childNodes[0].rawText.replace('&euro;', '').trim().replace(',', '.')) : 0
+                    price: prices[dates.indexOf(date) * 4 + i - 1].childNodes.length == 1 ? parseFloat(prices[dates.indexOf(date) * 4 + i - 1].childNodes[0].rawText.replace('&euro;', '').trim().replace(',', '.')) : 0
                 });
             }
             date.menus = menus.reverse().filter((a: any) => a.name !== '');

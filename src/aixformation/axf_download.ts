@@ -1,9 +1,12 @@
-import { AiXformation } from "../utils/interfaces";
-import { initFirebase } from "../utils/firebase";
-import { initDatabase } from "../utils/database";
-import { fetchData } from "../utils/network";
-import { setLatestAiXformation, compareLatestAiXformation } from '../history/history';
+import {AiXformation} from "../utils/interfaces";
+import {initFirebase} from "../utils/firebase";
+import {initDatabase} from "../utils/database";
+import {fetchData} from "../utils/network";
+import {compareLatestAiXformation, setLatestAiXformation} from '../history/history';
 import parseAiXformation from "./axf_parser";
+import {sendNotifications} from "./axf_butler";
+
+const isDev = process.argv.length === 3;
 
 const isNew = async (data: string): Promise<boolean> => {
     const _isNew = await compareLatestAiXformation(data);
@@ -20,9 +23,9 @@ const download = async (): Promise<AiXformation> => {
     const tags = await fetchData(url + '/tags?per_page=100', false);
     const parsed = parseAiXformation(data, users, tags);
 
-    if (await isNew(data + users + tags)) {
+    if (await isNew(data + users + tags) || isDev) {
         console.log('Parsed aixformation');
-        //TODO: Send notifications
+        await sendNotifications(parsed, isDev);
     }
 
     return parsed;

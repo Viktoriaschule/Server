@@ -56,7 +56,7 @@ const getImage = async (rawPost: any) => {
         if (!fs.existsSync(p)) {
             await pipeline(
                 got.stream(encodeURI(rawPost.jetpack_featured_media_url)),
-                sharp().resize(30).jpeg(),
+                sharp().resize(null, 60).jpeg(),
                 fs.createWriteStream(p)
             );
         }

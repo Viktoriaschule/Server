@@ -23,7 +23,6 @@ updatesRouter.get('/', async (req, res) => {
         timetable: allUpdates.get('timetable') || '',
         cafetoria: cafetoria,
         calendar: allUpdates.get('calendar') || '',
-        workgroups: allUpdates.get('workgroups') || '',
         substitutionPlan: allUpdates.get('substitution_plan_0') || '',
         subjects: allUpdates.get('subjects') || '',
         aixformation: allUpdates.get('aixformation') || '',

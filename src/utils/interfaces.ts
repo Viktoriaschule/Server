@@ -100,7 +100,6 @@ export interface UpdateData {
     substitutionPlan: string;
     cafetoria: string;
     calendar: string;
-    workgroups: string;
     subjects: string;
     minAppLevel: number;
     aixformation: string;
@@ -212,18 +211,6 @@ export interface Event {
 
 export interface Teacher {
     shortName: string;
-}
-
-export interface WorkgroupsDay {
-    weekday: number;
-    data: Workgroup[];
-}
-
-export interface Workgroup {
-    name: string;
-    participants: string;
-    time: string;
-    place: string;
 }
 
 export interface Subjects {

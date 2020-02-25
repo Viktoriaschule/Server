@@ -1,17 +1,22 @@
-import {AiXformation} from '../utils/interfaces';
+import { AiXformation } from '../utils/interfaces';
 import entities from 'entities';
 import got from 'got';
 import sharp from 'sharp';
 import fs from "fs";
 import path from "path";
 import stream from "stream";
-import {promisify} from "util";
+import { promisify } from "util";
 
 const pipeline = promisify(stream.pipeline);
 
 const tmpFolder = path.resolve('tmp', 'images');
 
 const parseAiXformation = async (raw: string, rawUsers: string, rawTags: string): Promise<AiXformation> => {
+    // Create image folder
+    if (!fs.existsSync(tmpFolder)) {
+        fs.mkdirSync(tmpFolder);
+    }
+
     // Parse users
     const parsedUsers: any[] = JSON.parse(rawUsers);
     const users: any = {};

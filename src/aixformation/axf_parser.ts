@@ -1,11 +1,11 @@
-import { AiXformation } from '../utils/interfaces';
+import {AiXformation} from '../utils/interfaces';
 import entities from 'entities';
 import got from 'got';
 import sharp from 'sharp';
 import fs from "fs";
 import path from "path";
 import stream from "stream";
-import { promisify } from "util";
+import {promisify} from "util";
 
 const pipeline = promisify(stream.pipeline);
 
@@ -61,7 +61,11 @@ const getImage = async (rawPost: any) => {
             );
         }
     } catch (e) {
-        fs.unlinkSync(p);
+        try {
+            fs.unlinkSync(p);
+        } catch (e) {
+
+        }
         console.log(e.body);
     }
 };

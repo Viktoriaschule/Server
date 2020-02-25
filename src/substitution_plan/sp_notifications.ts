@@ -105,7 +105,8 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                     title: notification.split('||')[0],
                     data: {
                         type: 'substitution plan',
-                        weekday: weekday.toString()
+                        weekday: weekday.toString(),
+                        'day': day.toString(),
                     }
                 });
             } catch (e) {

@@ -13,7 +13,6 @@ import { teachersRouter, updateTeachers } from './teachers/teachers_butler';
 import tagsRouter from './tags/tags_butler';
 import { authRouter } from './authentication/auth_butler';
 import bugsRouter from './bugs/bugs_router';
-import { updateWorkgroups, workgroupsRouter } from './workgroups/workgroups_butler';
 import { initFirebase, removeOldDevices } from './utils/firebase';
 import { initDatabase } from './utils/database';
 import { updatedMinutely, updatedDaily, statusRouter, updatedHourly } from './status/status_butler';
@@ -38,7 +37,6 @@ app.use('/tags', tagsRouter);
 app.use('/teachers', teachersRouter);
 app.use('/subjects', subjectsRouter);
 app.use('/bugs', bugsRouter);
-app.use('/workgroups', workgroupsRouter);
 app.use('/aixformation', aixformationRouter);
 app.use('/status', statusRouter);
 
@@ -79,7 +77,6 @@ const daily = async (): Promise<void> => {
         'timetable': async () => await updateTimetable(),
         'calendar': async () => await updateCalendar(),
         'cafetoria': async () => await updateCafetoriaMenus(),
-        'workgroups': async () => await updateWorkgroups(),
         'devices': async () => await removeOldDevices(),
     };
     for (var update of Object.keys(updates)) {

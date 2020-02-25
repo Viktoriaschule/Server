@@ -27,9 +27,6 @@ export const compareLatestCalendar = async (url: string): Promise<boolean> => aw
 export const setLatestTeachers = (url: string): void => setUpdated('teachers', url);
 export const compareLatestTeachers = async (url: string): Promise<boolean> => await compareUpdate('teachers', url);
 
-export const setLatestWorkgroups = (url: string): void => setUpdated('workgroups', url);
-export const compareLatestWorkgroups = async (url: string): Promise<boolean> => await compareUpdate('workgroups', url);
-
 export const setLatestSubjects = (data: string): void => setUpdated('subjects', data);
 export const compareLatestSubjects = async (data: string): Promise<boolean> => await compareUpdate('subjects', data);
 

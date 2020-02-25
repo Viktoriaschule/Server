@@ -19,7 +19,6 @@
     "cafetoria": "./node_modules/.bin/ts-node src/cafetoria/cafetoria_download.ts",
     "calendar": "./node_modules/.bin/ts-node src/calendar/calendar_download.ts",
     "teachers": "./node_modules/.bin/ts-node src/teachers/teachers_download.ts",
-    "workgroups": "./node_modules/.bin/ts-node src/workgroups/workgroups_download.ts",
     "subjects": "./node_modules/.bin/ts-node src/subjects/subjects_download.ts",
     "aixformation": "./node_modules/.bin/ts-node src/aixformation/axf_download.ts"
   },

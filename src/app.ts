@@ -12,12 +12,11 @@ import {calendarRouter, updateCalendar} from './calendar/calendar_butler';
 import {teachersRouter, updateTeachers} from './teachers/teachers_butler';
 import tagsRouter from './tags/tags_butler';
 import bugsRouter from './bugs/bugs_router';
-import {updateWorkgroups, workgroupsRouter} from './workgroups/workgroups_butler';
 import {initFirebase, removeOldDevices} from './utils/firebase';
 import {initDatabase} from './utils/database';
 import {statusRouter, updatedDaily, updatedHourly, updatedMinutely} from './status/status_butler';
 import {aixformationRouter, updateAiXformation} from './aixformation/axf_butler';
-import * as path from "path";
+import path from "path";
 
 const app = express();
 app.use(cors());
@@ -42,7 +41,6 @@ app.use('/tags', tagsRouter);
 app.use('/teachers', teachersRouter);
 app.use('/subjects', subjectsRouter);
 app.use('/bugs', bugsRouter);
-app.use('/workgroups', workgroupsRouter);
 app.use('/aixformation', aixformationRouter);
 app.use('/status', statusRouter);
 
@@ -83,7 +81,6 @@ const daily = async (): Promise<void> => {
         'timetable': async () => await updateTimetable(),
         'calendar': async () => await updateCalendar(),
         'cafetoria': async () => await updateCafetoriaMenus(),
-        'workgroups': async () => await updateWorkgroups(),
         'devices': async () => await removeOldDevices(),
     };
     for (var update of Object.keys(updates)) {

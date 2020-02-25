@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@types/body-parser": "^1.17.1",
+    "@types/sharp": "^0.24.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "entities": "^1.1.2",
@@ -38,6 +39,7 @@
     "nodemailer": "^6.3.1",
     "pdf-table-extractor": "^1.0.3",
     "request": "^2.88.0",
+    "sharp": "^0.24.1",
     "sqlstring": "^2.3.1",
     "tough-cookie": "^3.0.1"
   },

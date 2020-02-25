@@ -241,7 +241,6 @@ export interface Post {
     date: string;
     title: string;
     url: string;
-    imageUrl: string;
     author: string;
     tags: string[];
 }

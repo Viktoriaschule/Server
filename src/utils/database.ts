@@ -79,7 +79,8 @@ export const initDatabase = (): Promise<boolean> => {
 
                 resolve(false);
                 return;
-            };
+            }
+            ;
             console.log('Connected to database');
             createDefaultTables();
             resolve(true);
@@ -91,11 +92,11 @@ export const initDatabase = (): Promise<boolean> => {
 export const runDbCmd = (options: string): void => {
     if (!checkDatabaseStatus()) return;
     dbConnection.query(options);
-}  
+}
 
 /** Returns all results for the given options */
 export const getDbResults = async (options: string): Promise<any[]> => {
-    if (!checkDatabaseStatus()) return [];   
+    if (!checkDatabaseStatus()) return [];
     return new Promise<any[]>((resolve, reject) => {
         dbConnection.query(options, (err, results) => {
             if (err) {
@@ -112,7 +113,7 @@ export const getDbResults = async (options: string): Promise<any[]> => {
 const createDefaultTables = (): void => {
     if (!checkDatabaseStatus()) return;
     dbConnection.query(
-        'CREATE TABLE IF NOT EXISTS users (username VARCHAR(8) NOT NULL, grade TEXT NOT NULL, user_group INT NOT NULL, UNIQUE KEY unique_username (username)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
+        'CREATE TABLE IF NOT EXISTS users (username VARCHAR(8) NOT NULL, grade TEXT NOT NULL, user_group INT NOT NULL, last_active VARCHAR(24) NOT NULL, UNIQUE KEY unique_username (username)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_selections (username VARCHAR(8) NOT NULL, block VARCHAR(5) NOT NULL, course_id VARCHAR(12), timestamp VARCHAR(24) NOT NULL, UNIQUE KEY unique_username_block (username, block)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(

@@ -19,9 +19,9 @@ const isNew = async (data: string): Promise<boolean> => {
 const download = async (): Promise<AiXformation> => {
     const url = 'https://aixformation.de/wp-json/wp/v2';
     const data = await fetchData(url + '/posts?per_page=100', false);
-    const users = await fetchData(url + '/users?per_page=100', false)
+    const users = await fetchData(url + '/users?per_page=100', false);
     const tags = await fetchData(url + '/tags?per_page=100', false);
-    const parsed = parseAiXformation(data, users, tags);
+    const parsed = await parseAiXformation(data, users, tags);
 
     if (await isNew(data + users + tags) || isDev) {
         console.log('Parsed aixformation');
@@ -29,7 +29,7 @@ const download = async (): Promise<AiXformation> => {
     }
 
     return parsed;
-}
+};
 
 // If this file is started direct from the command line and was not imported
 if (module.parent === null) {

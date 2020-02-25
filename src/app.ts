@@ -1,26 +1,30 @@
 import express from 'express';
 import cors from 'cors';
 import basicAuth from 'express-basic-auth';
-import authorizer from './authentication/auth_butler';
-import { subjectsRouter, updateSubjects } from './subjects/subjects_butler';
+import authorizer, {authRouter} from './authentication/auth_butler';
+import {subjectsRouter, updateSubjects} from './subjects/subjects_butler';
 import historyRouter from './history/history_butler';
 import updateRouter from './updates/update_butler';
-import { substitutionPlanRouter, updateSubstitutionPlan } from './substitution_plan/sp_butler';
-import { timetableRouter, updateTimetable } from './timetable/tt_butler';
-import { cafetoriaRouter, updateCafetoriaMenus } from './cafetoria/cafetoria_butler';
-import { calendarRouter, updateCalendar } from './calendar/calendar_butler';
-import { teachersRouter, updateTeachers } from './teachers/teachers_butler';
+import {substitutionPlanRouter, updateSubstitutionPlan} from './substitution_plan/sp_butler';
+import {timetableRouter, updateTimetable} from './timetable/tt_butler';
+import {cafetoriaRouter, updateCafetoriaMenus} from './cafetoria/cafetoria_butler';
+import {calendarRouter, updateCalendar} from './calendar/calendar_butler';
+import {teachersRouter, updateTeachers} from './teachers/teachers_butler';
 import tagsRouter from './tags/tags_butler';
-import { authRouter } from './authentication/auth_butler';
 import bugsRouter from './bugs/bugs_router';
-import { initFirebase, removeOldDevices } from './utils/firebase';
-import { initDatabase } from './utils/database';
-import { updatedMinutely, updatedDaily, statusRouter, updatedHourly } from './status/status_butler';
-import { aixformationRouter, updateAiXformation } from './aixformation/axf_butler';
+import {initFirebase, removeOldDevices} from './utils/firebase';
+import {initDatabase} from './utils/database';
+import {statusRouter, updatedDaily, updatedHourly, updatedMinutely} from './status/status_butler';
+import {aixformationRouter, updateAiXformation} from './aixformation/axf_butler';
+import path from "path";
 
 const app = express();
 app.use(cors());
-app.use(basicAuth({ authorizer: authorizer, challenge: true, authorizeAsync: true }));
+
+// Can't be used with authentication
+app.use('/aixformation/images', express.static(path.resolve('tmp', 'images')));
+
+app.use(basicAuth({authorizer: authorizer, challenge: true, authorizeAsync: true}));
 
 app.get('/', (req, res) => {
     res.send('Hello world!');

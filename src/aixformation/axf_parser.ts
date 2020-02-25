@@ -23,7 +23,7 @@ const parseAiXformation = (raw: string, rawUsers: string, rawTags: string): AiXf
         const post: Post = {
             id: rawPost.id || '',
             title: entities.decodeHTML(rawPost.title?.rendered || ''),
-            url: rawPost.guid?.rendered || '',
+            url: rawPost.link || '',
             date: rawPost.date || '',
             imageUrl: rawPost.jetpack_featured_media_url || '',
             author: users[rawPost.author]?.name || '',

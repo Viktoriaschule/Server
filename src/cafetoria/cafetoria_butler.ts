@@ -63,7 +63,7 @@ export const sendNotifications = async (data: Cafetoria, isDev: boolean): Promis
 
         await sendNotification({
             devices: devices,
-            body: `${data.days.length} ${getLocalization('days')}`,
+            body: `${data.days.filter((day: CafetoriaDay) => day.menus.length > 0).length} ${getLocalization('days')}`,
             bigBody: data.days.filter((day: CafetoriaDay) => day.menus.length > 0)
                 .map((day: CafetoriaDay) => `${getWeekday(new Date(day.date).getDay() - 1)}: ${day.menus.length} ${getLocalization('menus')}`)
                 .join('<br/>'),

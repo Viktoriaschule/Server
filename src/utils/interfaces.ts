@@ -135,6 +135,8 @@ export interface User {
     grade: string;
     /** 1 (pupil); 2 (teacher); 4 (developer); 8 (other) */
     group: number;
+    /** ISO Date */
+    last_active: string | undefined;
 }
 
 export interface Selection {

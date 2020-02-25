@@ -37,6 +37,7 @@ tagsRouter.post('/', async (req, res) => {
         username: auth.username,
         grade: await getGrade(auth.username, auth.password),
         group: isDeveloper(auth.username) ? 5 : 1,
+        last_active: undefined,
     });
 
     const errors = [];

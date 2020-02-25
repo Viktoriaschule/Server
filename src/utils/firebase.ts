@@ -1,9 +1,20 @@
 import admin from 'firebase-admin';
 import path from 'path';
-import { Device, User } from './interfaces';
-import { getAllDevices, rmvDevice, getUsers, getDevices, rmvUser, rmvPreferences, rmvSelections, rmvExams, rmvNotifications, rmvDevices } from '../tags/tags_db';
-import { checkUsername } from '../authentication/ldap';
-import { rmvCafetoriaLogin } from '../cafetoria/cafetoria_db';
+import {Device, User} from './interfaces';
+import {
+    getAllDevices,
+    getDevices,
+    getUsers,
+    rmvDevice,
+    rmvDevices,
+    rmvExams,
+    rmvNotifications,
+    rmvPreferences,
+    rmvSelections,
+    rmvUser
+} from '../tags/tags_db';
+import {checkUsername} from '../authentication/ldap';
+import {rmvCafetoriaLogin} from '../cafetoria/cafetoria_db';
 
 export const initFirebase = () => {
     console.log("Init firebase");
@@ -30,17 +41,16 @@ export const send = async (tokens: string[], data: any, options?: any): Promise<
 };
 
 export const removeOldDevices = async () => {
-    const fourMonthsAgo = new Date();
-    fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
+    const fourMonths = 60 * 60 * 24 * 30 * 4;
 
     // Clean up old devices
     let count = 0;
     let devices: Device[] = await getAllDevices();
     for (var device of devices) {
         const success = await send([device.firebaseId], {data: {}}, {'dry_run': true});
-
+        const diff = (new Date().getTime() / 1000) - (new Date(device.lastActive).getTime() / 1000);
         // Delete the device if the token does not exist or it was since four month inactive
-        if (!success || Date.parse(device.lastActive) < fourMonthsAgo.getTime()) {
+        if (!success || diff > fourMonths) {
             rmvDevice(device);
             rmvPreferences(device.firebaseId);
             count++;
@@ -49,12 +59,13 @@ export const removeOldDevices = async () => {
     console.log(`Removed ${count} devices`);
 
     // Clean up old users
-    count = 0;
     const users: User[] = await getUsers();
+    const removedUsers: User[] = [];
     for (var user of users) {
         const _devices = await getDevices(user.username);
         const userExists = await checkUsername(user.username);
-        if (!userExists || _devices.length === 0) {
+        const diff = (new Date().getTime() / 1000) - (new Date(user.last_active || '').getTime() / 1000);
+        if (!userExists || (_devices.length === 0 && diff > fourMonths) || diff > fourMonths) {
             // Delete complete user data
             rmvUser(user);
             rmvDevices(user.username);
@@ -63,9 +74,9 @@ export const removeOldDevices = async () => {
             rmvNotifications(user.username);
             rmvCafetoriaLogin(user.username);
             _devices.forEach((device) => rmvPreferences(device.firebaseId));
-            count++;
+            removedUsers.push(user);
         }
     }
-    console.log(`Removed ${count} users`);
+    console.log(`Removed ${removedUsers.length} users: ${removedUsers.map((user) => user.username).join(', ')}`);
 
 }

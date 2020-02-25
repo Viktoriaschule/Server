@@ -1,14 +1,23 @@
-import { runDbCmd, getDbResults, updateOnlyNonNullAttributes, toSqlValue, updateAllAttributes, fromSqlBoolean, fromSqlValue } from "../utils/database"
-import { User, Device, Exam, Selection } from "../utils/interfaces";
+import {
+    fromSqlBoolean,
+    fromSqlValue,
+    getDbResults,
+    runDbCmd,
+    toSqlValue,
+    updateAllAttributes,
+    updateOnlyNonNullAttributes
+} from "../utils/database"
+import {Device, Exam, Selection, User} from "../utils/interfaces";
 
 /** Sets a new user or updates old parameters */
 export const setUser = (user: User): void => {
     const updateAttr = {
         grade: user.grade,
         user_group: user.group,
+        last_active: new Date().toISOString(),
     };
     const updateStr = updateOnlyNonNullAttributes(updateAttr);
-    runDbCmd(`INSERT INTO users VALUES ('${user.username}', '${user.grade}', '${user.group}') ${updateStr};`);
+    runDbCmd(`INSERT INTO users VALUES ('${user.username}', '${user.grade}', '${user.group}', '${updateAttr.last_active}') ${updateStr};`);
 }
 
 /** Removes a user with the given username */
@@ -23,7 +32,8 @@ export const getUser = async (username: string): Promise<User | undefined> => {
     return {
         username: username,
         grade: dbUser.grade,
-        group: dbUser.user_group
+        group: dbUser.user_group,
+        last_active: dbUser.last_active,
     };
 }
 
@@ -39,6 +49,7 @@ export const getUsers = async (dev = false): Promise<User[]> => {
             username: user.username,
             grade: user.grade,
             group: user.user_group,
+            last_active: user.last_active,
         };
     });
 }

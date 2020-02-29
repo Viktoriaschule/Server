@@ -1,10 +1,10 @@
 import express from 'express';
 import download from './axf_download';
-import {AiXformation, Device} from '../utils/interfaces';
-import {loadData, saveData} from '../utils/data';
-import {getAllDevices, getDevices, getUsers} from "../tags/tags_db";
-import {sendNotification} from "../utils/notification";
-import {updateApp} from "../utils/update_app";
+import { AiXformation, Device, Post } from '../utils/interfaces';
+import { loadData, saveData } from '../utils/data';
+import { getAllDevices, getDevices, getUsers } from "../tags/tags_db";
+import { sendNotification } from "../utils/notification";
+import { updateApp } from "../utils/update_app";
 import getLocalization from "../utils/localizations";
 
 export const aixformationRouter = express.Router();
@@ -30,7 +30,7 @@ export const updateAiXformation = async (): Promise<void> => {
  * @param data loaded AiXformation data
  * @param isDev send only to developers (for debugging)
  */
-export const sendNotifications = async (data: AiXformation, isDev: boolean): Promise<void> => {
+export const sendNotifications = async (post: Post, isDev: boolean): Promise<void> => {
     try {
         let devices: Device[] = [];
         if (isDev) {
@@ -45,12 +45,12 @@ export const sendNotifications = async (data: AiXformation, isDev: boolean): Pro
 
         await sendNotification({
             devices: devices,
-            body: data.posts[0].title,
-            bigBody: data.posts[0].title,
+            body: post.title,
+            bigBody: post.title,
             title: getLocalization('aixformation'),
             data: {
                 type: 'aixformation',
-                url: data.posts[0].url,
+                url: post.url,
             }
         });
 
@@ -58,7 +58,7 @@ export const sendNotifications = async (data: AiXformation, isDev: boolean): Pro
         await updateApp({
             'type': 'aixformation',
             'action': 'update',
-            'url': data.posts[0].url,
+            'url': post.url,
             'weekday': '', // This is totally a bug, but I can't figure out why it's needed, but it doesn't make sense in any way - signed jld3103
         }, isDev);
     } catch (e) {

@@ -16,7 +16,7 @@ const defaultValue: Cafetoria = {saldo: undefined, error: 'No data', days: []};
 
 cafetoriaRouter.post('/', async (req, res) => {
     const data = await loadData<Cafetoria>('cafetoria', defaultValue);
-    if (req.body.id === 'null' || req.body.pin === 'null' || req.body.id === undefined || req.body.pin === undefined) {
+    if (req.body.id === null || req.body.pin === null || req.body.id === undefined || req.body.pin === undefined) {
         res.json(data);
         return;
     }

@@ -4,11 +4,13 @@ import { User, Device, CafetoriaLogin, Exam, Selection } from "../utils/interfac
 import { setCafetoriaLogin, getCafetoriaLogin, rmvCafetoriaLogin } from "../cafetoria/cafetoria_db";
 
 const testUser: User = {
+    last_active: new Date().toISOString(),
     username: 'maxmust',
     grade: '5a',
     group: 1,
 };
 const testDevUser: User = {
+    last_active: new Date().toISOString(),
     username: 'maxadmi',
     grade: 'q1',
     group: 5,
@@ -104,12 +106,6 @@ describe('database', () => {
     });
     test('get user devices', done => {
         getDevices(testUser.username).then(devices => {
-            expect(devices.length).toBe(1);
-            done();
-        });
-    });
-    test('get all devices', done => {
-        getAllDevices().then(devices => {
             expect(devices.length).toBe(1);
             done();
         });

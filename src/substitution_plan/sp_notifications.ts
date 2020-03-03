@@ -49,7 +49,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                     if (unsure) text += ')';
 
                     return text;
-                }).join('\n');
+                }).join('<br>');
                 if (text.length === 0) text = getLocalization('noChanges');
 
                 /// Check if notification changed to last time
@@ -97,7 +97,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
         console.log(day + ': ' + `Send ${notifications.size} different notifications to ${deviceCount} different devices`);
         for (var notification of Array.from(notifications.keys())) {
             try {
-                const changesCount = notification.split('|')[1].split('\n').length;
+                const changesCount = notification.split('||')[1].split('<br>').length;
                 await sendNotification({
                     devices: notifications.get(notification) || [],
                     body: changesCount == 0 ? notification.split('||')[1] : `${changesCount} ${getLocalization('changes')}`,

@@ -50,7 +50,7 @@ app.use('/status', statusRouter);
  */
 const minutely = async (): Promise<void> => {
     try {
-        await updateSubstitutionPlan();
+        await runUpdate(updateSubstitutionPlan());
     } catch (e) {
         console.error('Failed to run minutely update:', e);
     }
@@ -76,11 +76,11 @@ const hourly = async (): Promise<void> => {
  */
 const daily = async (): Promise<void> => {
     const updates: any = {
-        'subjects': async () => await updateSubjects(),
-        'teachers': async () => await updateTeachers(),
-        'timetable': async () => await updateTimetable(),
-        'calendar': async () => await updateCalendar(),
-        'cafetoria': async () => await updateCafetoriaMenus(),
+        'subjects': async () => await runUpdate(updateSubjects()),
+        'teachers': async () => await runUpdate(updateTeachers()),
+        'timetable': async () => await runUpdate(updateTimetable()),
+        'calendar': async () => await runUpdate(updateCalendar()),
+        'cafetoria': async () => await runUpdate(updateCafetoriaMenus()),
         'devices': async () => await removeOldDevices(),
     };
     for (var update of Object.keys(updates)) {
@@ -104,6 +104,22 @@ const daily = async (): Promise<void> => {
     setTimeout(daily, difInMillis);
     updatedDaily();
 };
+
+const runUpdate = (update: Promise<void>): Promise<void> => {
+    // Create a promise that rejects in <ms> milliseconds
+    let timeout = new Promise<void>((resolve, reject) => {
+        let id = setTimeout(() => {
+            clearTimeout(id);
+            reject('Timed out update.')
+        }, 20000)
+    });
+
+    // Returns a race between our timeout and the passed in promise
+    return Promise.race<void>([
+        update,
+        timeout
+    ]);
+}
 
 // Start download process
 (async () => {

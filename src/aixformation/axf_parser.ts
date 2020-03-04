@@ -1,11 +1,13 @@
-import {AiXformation} from '../utils/interfaces';
+import { AiXformation } from '../utils/interfaces';
 import entities from 'entities';
+import crypto from 'crypto';
 import got from 'got';
 import sharp from 'sharp';
 import fs from "fs";
 import path from "path";
 import stream from "stream";
-import {promisify} from "util";
+import { promisify } from "util";
+import { getValue, setValue } from './axf_db';
 
 const pipeline = promisify(stream.pipeline);
 
@@ -41,9 +43,9 @@ const parseAiXformation = async (raw: string, rawUsers: string, rawTags: string)
             id: rawPost.id || '',
             title: entities.decodeHTML(rawPost.title?.rendered || ''),
             url: rawPost.link || '',
-            date: rawPost.date || '',
+            date: new Date(rawPost.date_gmt).toISOString() || '',
             author: users[rawPost.author]?.name || '',
-            tags: rawPost.tags.map((tag: number) => tags[tag]?.name || '').filter((tag: string) => tag.length > 0)
+            tags: rawPost.tags.map((tag: number) => tags[tag]?.name || '').filter((tag: string) => tag.length > 0),
         });
     }
 
@@ -51,15 +53,24 @@ const parseAiXformation = async (raw: string, rawUsers: string, rawTags: string)
 };
 
 const getImage = async (rawPost: any) => {
+    const url: string = rawPost.jetpack_featured_media_url;
+    const urlHash = crypto.createHash('sha1').update(url).digest('hex')
+    const lastUrl = await getValue(`img-${rawPost.id}`);
+
+    // If the image url did not changed, do not download the image again
+    if (lastUrl && lastUrl === urlHash) {
+        return;
+    }
+    setValue(`img-${rawPost.id}`, urlHash);
+
+    console.log('Update aixformation image');
     const p = path.resolve(tmpFolder, (rawPost.id || '').toString());
     try {
-        if (!fs.existsSync(p)) {
-            await pipeline(
-                got.stream(encodeURI(rawPost.jetpack_featured_media_url)),
-                sharp().resize(null, 60).jpeg(),
-                fs.createWriteStream(p)
-            );
-        }
+        await pipeline(
+            got.stream(encodeURI(url)),
+            sharp().resize(null, 60).jpeg(),
+            fs.createWriteStream(p)
+        );
     } catch (e) {
         try {
             fs.unlinkSync(p);

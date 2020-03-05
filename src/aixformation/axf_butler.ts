@@ -48,18 +48,16 @@ export const sendNotifications = async (post: Post, isDev: boolean): Promise<voi
             body: post.title,
             bigBody: post.title,
             title: getLocalization('aixformation'),
+            type: 'aixformation',
+            group: 6,
             data: {
-                type: 'aixformation',
                 url: post.url,
             }
         });
 
         // Inform the app about a new cafetoria menus
-        await updateApp({
-            'type': 'aixformation',
-            'action': 'update',
+        await updateApp('aixformation', {
             'url': post.url,
-            'weekday': '', // This is totally a bug, but I can't figure out why it's needed, but it doesn't make sense in any way - signed jld3103
         }, isDev);
     } catch (e) {
         console.error('Failed to send notifications', e);

@@ -6,13 +6,15 @@ export const sendMessage = async (data: { devices: Device[], data: any }): Promi
     await send(firebaseIds, { data: data.data });
 };
 
-export const sendNotification = async (data: { devices: Device[], title: string, body: string, bigBody: string, data: any }): Promise<void> => {
+export const sendNotification = async (data: { devices: Device[], title: string, body: string, bigBody: string, type: string, group: number, data: any }): Promise<void> => {
     var firebaseIds: string[] = data.devices
         .map((device: Device) => device.firebaseId);
 
     data.data.title = data.title;
     data.data.bigBody = data.bigBody;
     data.data.body = data.body;
+    data.data.type = data.type;
+    data.data.group = data.group.toString();
 
-    await send(firebaseIds, {data: data.data}, {});
+    await send(firebaseIds, { data: data.data }, {});
 };

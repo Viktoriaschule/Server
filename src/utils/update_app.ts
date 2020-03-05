@@ -1,9 +1,9 @@
-import {sendMessage} from './notification';
+import { sendMessage } from './notification';
 import { User, Device } from "./interfaces";
 import { isDeveloper } from "./auth";
 import { getAllDevices, getUsers, getDevices } from '../tags/tags_db';
 
-export const updateApp = async (data: any, dev?: boolean): Promise<void> => {
+export const updateApp = async (type: string, data: any, dev?: boolean): Promise<void> => {
     if (!dev) dev = false;
 
     let devices: Device[] = [];
@@ -15,6 +15,9 @@ export const updateApp = async (data: any, dev?: boolean): Promise<void> => {
     } else {
         devices = await getAllDevices();
     }
+
+    data.type = type;
+    data.action = 'update';
 
     await sendMessage({
         devices: devices,

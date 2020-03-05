@@ -1,18 +1,18 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import {download, fetchDataForUser} from './cafetoria_download';
-import {Cafetoria, CafetoriaDay, Device} from '../utils/interfaces';
-import {loadData, saveData, shouldForceUpdate} from '../utils/data';
-import {getAllDevices, getDevices, getUsers} from "../tags/tags_db";
-import {sendNotification} from "../utils/notification";
+import { download, fetchDataForUser } from './cafetoria_download';
+import { Cafetoria, CafetoriaDay, Device } from '../utils/interfaces';
+import { loadData, saveData, shouldForceUpdate } from '../utils/data';
+import { getAllDevices, getDevices, getUsers } from "../tags/tags_db";
+import { sendNotification } from "../utils/notification";
 import getLocalization from "../utils/localizations";
-import {updateApp} from "../utils/update_app";
-import {getWeekday} from "../substitution_plan/sp_notifications";
+import { updateApp } from "../utils/update_app";
+import { getWeekday } from "../substitution_plan/sp_notifications";
 
 export const cafetoriaRouter = express.Router();
 cafetoriaRouter.use(bodyParser.json());
 
-const defaultValue: Cafetoria = {saldo: undefined, error: 'No data', days: []};
+const defaultValue: Cafetoria = { saldo: undefined, error: 'No data', days: [] };
 
 cafetoriaRouter.post('/', async (req, res) => {
     const data = await loadData<Cafetoria>('cafetoria', defaultValue);
@@ -22,9 +22,9 @@ cafetoriaRouter.post('/', async (req, res) => {
     }
     try {
         const result = await fetchDataForUser(req.body.id, req.body.pin);
-        res.json({error: result.error?.toString(), days: data?.days, saldo: result.saldo});
+        res.json({ error: result.error?.toString(), days: data?.days, saldo: result.saldo });
     } catch (e) {
-        res.json({error: e, days: data?.days, saldo: undefined});
+        res.json({ error: e, days: data?.days, saldo: undefined });
     }
 });
 
@@ -68,17 +68,13 @@ export const sendNotifications = async (data: Cafetoria, isDev: boolean): Promis
                 .map((day: CafetoriaDay) => `${getWeekday(new Date(day.date).getDay() - 1)}: ${day.menus.length} ${getLocalization('menus')}`)
                 .join('<br/>'),
             title: getLocalization('cafetoria'),
-            data: {
-                type: 'cafetoria'
-            }
+            type: 'cafetoria',
+            group: 5,
+            data: {},
         });
 
         // Inform the app about a new cafetoria menus
-        await updateApp({
-            'type': 'cafetoria',
-            'action': 'update',
-            'weekday': '', // This is totally a bug, but I can't figure out why it's needed, but it doesn't make sense in any way - signed jld3103
-        }, isDev);
+        await updateApp('cafetoria', {}, isDev);
     } catch (e) {
         console.error('Failed to send notifications', e);
     }

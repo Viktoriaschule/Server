@@ -1,11 +1,11 @@
 import crypto from 'crypto';
-import {updateApp} from '../utils/update_app';
-import {sendNotification} from '../utils/notification';
-import {Device, SubstitutionPlan} from '../utils/interfaces';
-import {getSubstitutionsForUser} from './sp_filter';
-import {getDevices, getNotification, getPreference, getUsers, setNotification} from '../tags/tags_db';
+import { updateApp } from '../utils/update_app';
+import { sendNotification } from '../utils/notification';
+import { Device, SubstitutionPlan } from '../utils/interfaces';
+import { getSubstitutionsForUser } from './sp_filter';
+import { getDevices, getNotification, getPreference, getUsers, setNotification } from '../tags/tags_db';
 import getLocalization from '../utils/localizations';
-import {getSubjects} from '../subjects/subjects_butler';
+import { getSubjects } from '../subjects/subjects_butler';
 
 /**
  * Sends substitution plan notifications to all devices
@@ -103,8 +103,9 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                     body: changesCount == 0 ? notification.split('||')[1] : `${changesCount} ${getLocalization('changes')}`,
                     bigBody: notification.split('||')[1],
                     title: notification.split('||')[0],
+                    type: 'substitutionPlan',
+                    group: weekday,
                     data: {
-                        type: 'substitution plan',
                         weekday: weekday.toString(),
                         'day': day.toString(),
                     }
@@ -114,9 +115,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
             }
         }
 
-        await updateApp({
-            'type': 'substitution plan',
-            'action': 'update',
+        await updateApp('substitutionPlan', {
             'day': day.toString(),
             'weekday': weekday.toString()
         }, isDev);

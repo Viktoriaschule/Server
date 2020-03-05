@@ -2,7 +2,7 @@ import express from 'express';
 import download from './axf_download';
 import { AiXformation, Device, Post } from '../utils/interfaces';
 import { loadData, saveData } from '../utils/data';
-import { getAllDevices, getDevices, getUsers } from "../tags/tags_db";
+import { getAllDevices, getDevices, getUsers, getPreference } from "../tags/tags_db";
 import { sendNotification } from "../utils/notification";
 import { updateApp } from "../utils/update_app";
 import getLocalization from "../utils/localizations";
@@ -32,15 +32,27 @@ export const updateAiXformation = async (): Promise<void> => {
  */
 export const sendNotifications = async (post: Post, isDev: boolean): Promise<void> => {
     try {
-        let devices: Device[] = [];
+        let allDevices: Device[] = [];
         if (isDev) {
             let users = await getUsers(isDev);
             for (let user of users) {
-                devices = devices.concat(await getDevices(user.username));
+                allDevices = allDevices.concat(await getDevices(user.username));
             }
         } else {
-            devices = await getAllDevices();
+            allDevices = await getAllDevices();
         }
+
+        // Find all devices with activated notifications
+        const devices: Device[] = [];
+        for (const device of allDevices) {
+            // Check if the device has notifications enabled
+            var getNotifications = await getPreference(device.firebaseId, 'notifications-aixformation');
+            if (getNotifications === undefined) getNotifications = true;
+            if (getNotifications) {
+                devices.push(device);
+            }
+        }
+
         console.log('Sending notifications to ' + devices.length + ' devices');
 
         await sendNotification({

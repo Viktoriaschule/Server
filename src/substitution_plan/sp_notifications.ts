@@ -73,7 +73,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                 for (let device of devices) {
                     try {
                         // Check if the device has notifications enabled
-                        var getNotifications = await getPreference(device.firebaseId, 'spNotifications');
+                        var getNotifications = await getPreference(device.firebaseId, 'notifications-substitutionPlan');
                         if (getNotifications === undefined) getNotifications = true;
                         if (!getNotifications) continue;
 

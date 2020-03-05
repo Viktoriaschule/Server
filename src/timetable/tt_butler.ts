@@ -3,7 +3,7 @@ import download from './tt_download';
 import { Device, Timetables } from '../utils/interfaces';
 import getAuth from '../utils/auth';
 import { getGrade } from '../authentication/ldap';
-import { getAllDevices, getDevices, getUsers } from '../tags/tags_db';
+import { getAllDevices, getDevices, getUsers, getPreference } from '../tags/tags_db';
 import { loadData, saveData, shouldForceUpdate } from '../utils/data';
 import { updateApp } from "../utils/update_app";
 import { sendNotification } from "../utils/notification";
@@ -73,14 +73,24 @@ export const getCourseIDsFromID = (timetables: Timetables, grade: string, id: st
  */
 export const sendNotifications = async (isDev: boolean): Promise<void> => {
     try {
-        let devices: Device[] = [];
+        let allDevices: Device[] = [];
         if (isDev) {
             let users = await getUsers(isDev);
             for (let user of users) {
-                devices = devices.concat(await getDevices(user.username));
+                allDevices = allDevices.concat(await getDevices(user.username));
             }
         } else {
-            devices = await getAllDevices();
+            allDevices = await getAllDevices();
+        }
+        // Find all devices with activated notifications
+        const devices: Device[] = [];
+        for (const device of allDevices) {
+            // Check if the device has notifications enabled
+            var getNotifications = await getPreference(device.firebaseId, 'notifications-timetable');
+            if (getNotifications === undefined) getNotifications = true;
+            if (getNotifications) {
+                devices.push(device);
+            }
         }
         console.log('Sending notifications to ' + devices.length + ' devices');
 

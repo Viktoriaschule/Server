@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import { download, fetchDataForUser } from './cafetoria_download';
 import { Cafetoria, CafetoriaDay, Device } from '../utils/interfaces';
 import { loadData, saveData, shouldForceUpdate } from '../utils/data';
-import { getAllDevices, getDevices, getUsers } from "../tags/tags_db";
+import { getAllDevices, getDevices, getUsers, getPreference } from "../tags/tags_db";
 import { sendNotification } from "../utils/notification";
 import getLocalization from "../utils/localizations";
 import { updateApp } from "../utils/update_app";
@@ -50,15 +50,26 @@ export const updateCafetoriaMenus = async (): Promise<void> => {
  */
 export const sendNotifications = async (data: Cafetoria, isDev: boolean): Promise<void> => {
     try {
-        let devices: Device[] = [];
+        let allDevices: Device[] = [];
         if (isDev) {
             let users = await getUsers(isDev);
             for (let user of users) {
-                devices = devices.concat(await getDevices(user.username));
+                allDevices = allDevices.concat(await getDevices(user.username));
             }
         } else {
-            devices = await getAllDevices();
+            allDevices = await getAllDevices();
         }
+        // Find all devices with activated notifications
+        const devices: Device[] = [];
+        for (const device of allDevices) {
+            // Check if the device has notifications enabled
+            var getNotifications = await getPreference(device.firebaseId, 'notifications-cafetoria');
+            if (getNotifications === undefined) getNotifications = true;
+            if (getNotifications) {
+                devices.push(device);
+            }
+        }
+
         console.log('Sending notifications to ' + devices.length + ' devices');
 
         await sendNotification({

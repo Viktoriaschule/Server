@@ -1,6 +1,6 @@
 import { setLatestSubstitutionPlan, compareLatestSubstitutionPlan } from '../history/history';
-import {parse} from 'node-html-parser';
-import {fetchData} from '../utils/network';
+import { parse } from 'node-html-parser';
+import { fetchData } from '../utils/network';
 import parseSubstitutionPlan from './sp_parser';
 import { SubstitutionPlan } from '../utils/interfaces';
 import { sendNotifications } from './sp_notifications';
@@ -9,6 +9,7 @@ import filterSubstitutionPlan from './sp_filter';
 import { updateTimetable } from '../timetable/tt_butler';
 import { initDatabase } from '../utils/database';
 import { updatedSubstitutionPlan } from '../status/status_butler';
+import { getSubstitutionPlanUrl } from '../utils/urls';
 
 const isDev = process.argv.length >= 3 && process.argv[2].trim() === '--dev';
 
@@ -27,7 +28,7 @@ const isNew = async (day: number, data: string): Promise<boolean> => {
  */
 const downloadDay = async (day: number, checkIfUpdated?: boolean): Promise<SubstitutionPlan | undefined> => {
     // Download the raw html
-    const url = `https://www.viktoriaschule-aachen.de/sundvplan/vps/f${day + 1}/subst_001.htm`;
+    const url = getSubstitutionPlanUrl(day + 1);
     const raw = await fetchData(url, true);
     //console.log('Fetched substitution plan for day ' + day);
 
@@ -46,7 +47,7 @@ const downloadDay = async (day: number, checkIfUpdated?: boolean): Promise<Subst
         if (_isNew || isDev) {
             sendNotifications(isDev, day, substitutionPlan);
         }
-        
+
         return substitutionPlan;
     }
     return undefined;

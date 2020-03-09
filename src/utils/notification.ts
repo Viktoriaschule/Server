@@ -46,7 +46,7 @@ export const updateApp = async (type: string, data: any, dev?: boolean): Promise
 };
 
 /** Sends the user notifications and updates the app */
-export const sendNotification = async (dev: boolean, notification: { devices?: Device[], title: string, body: string, bigBody: string, type: string, group: number, data: any }, shouldUpdateApp = true): Promise<void> => {
+export const sendNotification = async (dev: boolean, notification: { devices?: Device[], title: string, body: string, bigBody: string, type: string, group: number, data: any, closeGroups?: number[] }, shouldUpdateApp = true): Promise<void> => {
     try {
         var firebaseIds: string[] = notification.devices != null ? notification.devices
             .map((device: Device) => device.firebaseId) : await getFirebaseIDs(notification.type, dev);
@@ -65,6 +65,7 @@ export const sendNotification = async (dev: boolean, notification: { devices?: D
         notification.data.body = notification.body;
         notification.data.type = notification.type;
         notification.data.group = notification.group.toString();
+        notification.data.closeGroups = JSON.stringify(notification.closeGroups ?? [notification.group]);
 
         // Send the notifications to inform the users
         await send(firebaseIds, { data: notification.data }, {});

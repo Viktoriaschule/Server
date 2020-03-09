@@ -21,8 +21,11 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
         if (date.getTime() < current.getTime() && !(date.getDate() === current.getDate()
             && date.getMonth() === current.getMonth()
             && date.getFullYear() === current.getFullYear())) {
-            console.log(day + ': ' + 'The day has passed, do not send notifications');
-            return;
+            if (!isDev) {
+                console.log(day + ': ' + 'The day has passed, do not send notifications');
+                return;
+            } 
+            console.log('Do not ignore passed day, because of the dev tag');
         }
         const weekday = new Date(substitutionplanDay.date).getDay() - 1;
 
@@ -103,6 +106,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                 title: notification.split('||')[0],
                 type: 'substitutionPlan',
                 group: weekday,
+                closeGroups: [0, 1, 2, 3, 4],
                 data: {
                     weekday: weekday.toString(),
                     'day': day.toString(),

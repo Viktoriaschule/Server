@@ -53,5 +53,5 @@
     - Für die Logs kann `sudo journalctl -r -u viktoriaapp` ausgeführt werden, oder wenn live neue Logs angezeigt werden das `-r` durch ein `-f` ersetzten
 
 ## Debugging
-- To force notifications for developer use the `--dev` attribute
-- To load custom data, check out the [simulation server](https://github.com/Viktoriaschule/ServerSimulation)
+- Um Benachrichtigungen für Entwickler zu erzwingen, benutze das `--dev` Attribut
+- Um eigene Daten zu laden, gucke auf den [simulation server](https://github.com/Viktoriaschule/ServerSimulation)

@@ -142,11 +142,11 @@ export const setDevice = (username: string, device: Device): void => {
     const updateAttr = {
         os: device.os,
         version: device.appVersion,
-        name: device.name,
-        last_active: device.lastActive
+        last_active: device.lastActive,
+        package: device.package,
     };
     const updateStr = updateOnlyNonNullAttributes(updateAttr);
-    runDbCmd(`INSERT INTO users_devices VALUES ('${username}', '${device.firebaseId}', '${device.os}', '${device.appVersion}', '${device.name}', '${device.lastActive}') ${updateStr};`);
+    runDbCmd(`INSERT INTO users_devices VALUES ('${username}', '${device.firebaseId}', '${device.os}', '${device.appVersion}', '${device.package}', '${device.lastActive}') ${updateStr};`);
 }
 
 /** Removes a device */
@@ -167,8 +167,8 @@ export const getDevice = async (username: string, token: string): Promise<Device
         firebaseId: dbDevice.token,
         os: dbDevice.os,
         appVersion: dbDevice.version,
-        name: dbDevice.name,
-        lastActive: dbDevice.last_active
+        lastActive: dbDevice.last_active,
+        package: dbDevice.package,
     };
 }
 
@@ -180,8 +180,8 @@ export const getDevices = async (username: string): Promise<Device[]> => {
             firebaseId: device.token,
             os: device.os,
             appVersion: device.version,
-            name: device.name,
-            lastActive: device.last_active
+            lastActive: device.last_active,
+            package: device.package,
         };
     });
 }
@@ -194,8 +194,8 @@ export const getAllDevices = async (): Promise<Device[]> => {
             firebaseId: device.token,
             os: device.os,
             appVersion: device.version,
-            name: device.name,
-            lastActive: device.last_active
+            lastActive: device.last_active,
+            package: device.package,
         };
     });
 }

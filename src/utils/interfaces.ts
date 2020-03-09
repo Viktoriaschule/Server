@@ -160,9 +160,9 @@ export interface Course {
 
 export interface Device {
     os: string;
-    name: string;
     appVersion: string;
     firebaseId: string;
+    package: string;
     /** ISO-Date */
     lastActive: string;
 }

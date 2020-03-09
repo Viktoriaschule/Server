@@ -1,10 +1,21 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { Tags, Exam, Device, CafetoriaLogin, Selection } from '../utils/interfaces';
-import getAuth, { isDeveloper } from '../utils/auth';
-import { getGrade } from '../authentication/ldap';
-import { getUser, getSelections, getExams, setUser, setDevice, getExam, setExam, setPreference, setSelection, getSelection } from './tags_db';
-import { getCafetoriaLogin, setCafetoriaLogin } from '../cafetoria/cafetoria_db';
+import {CafetoriaLogin, Device, Exam, Selection, Tags} from '../utils/interfaces';
+import getAuth, {isDeveloper} from '../utils/auth';
+import {getGrade} from '../authentication/ldap';
+import {
+    getExam,
+    getExams,
+    getSelection,
+    getSelections,
+    getUser,
+    setDevice,
+    setExam,
+    setPreference,
+    setSelection,
+    setUser
+} from './tags_db';
+import {getCafetoriaLogin, setCafetoriaLogin} from '../cafetoria/cafetoria_db';
 
 const tagsRouter = express.Router();
 tagsRouter.use(bodyParser.json());
@@ -26,7 +37,7 @@ tagsRouter.get('/', async (req, res) => {
         return res.json({});
     }
     res.status(401);
-    return res.json({ error: 'unauthorized' });
+    return res.json({error: 'unauthorized'});
 });
 
 tagsRouter.post('/', async (req, res) => {
@@ -45,7 +56,7 @@ tagsRouter.post('/', async (req, res) => {
     // If the device is updated, update it
     if (req.body.device) {
         const device: Device = req.body.device;
-        if (device.appVersion && device.firebaseId && device.name && device.os) {
+        if (device.appVersion && device.firebaseId && device.package && device.os) {
             device.lastActive = new Date().toISOString();
             setDevice(auth.username, device);
 
@@ -107,10 +118,10 @@ tagsRouter.post('/', async (req, res) => {
         }
     }
     if (errors.length > 0) {
-        res.json({ 'errors': errors });
+        res.json({'errors': errors});
         return;
     }
-    res.json({ 'error': null });
+    res.json({'error': null});
 });
 
 export default tagsRouter;

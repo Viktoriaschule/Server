@@ -3,11 +3,6 @@ import bodyParser from 'body-parser';
 import { download, fetchDataForUser } from './cafetoria_download';
 import { Cafetoria, CafetoriaDay, Device } from '../utils/interfaces';
 import { loadData, saveData, shouldForceUpdate } from '../utils/data';
-import { getAllDevices, getDevices, getUsers } from "../tags/tags_db";
-import { sendNotification } from "../utils/notification";
-import getLocalization from "../utils/localizations";
-import { updateApp } from "../utils/update_app";
-import { getWeekday } from "../substitution_plan/sp_notifications";
 
 export const cafetoriaRouter = express.Router();
 cafetoriaRouter.use(bodyParser.json());
@@ -40,42 +35,4 @@ export const updateCafetoriaMenus = async (): Promise<void> => {
             resolve();
         }).catch(reject);
     });
-};
-
-
-/**
- * Sends the Cafetoria notifications to all users who want them
- * @param data loaded Cafetoria data
- * @param isDev send only to developers (for debugging)
- */
-export const sendNotifications = async (data: Cafetoria, isDev: boolean): Promise<void> => {
-    try {
-        let devices: Device[] = [];
-        if (isDev) {
-            let users = await getUsers(isDev);
-            for (let user of users) {
-                devices = devices.concat(await getDevices(user.username));
-            }
-        } else {
-            devices = await getAllDevices();
-        }
-        console.log('Sending notifications to ' + devices.length + ' devices');
-
-        await sendNotification({
-            devices: devices,
-            body: `${data.days.filter((day: CafetoriaDay) => day.menus.length > 0).length} ${getLocalization('days')}`,
-            bigBody: data.days.filter((day: CafetoriaDay) => day.menus.length > 0)
-                .map((day: CafetoriaDay) => `${getWeekday(new Date(day.date).getDay() - 1)}: ${day.menus.length} ${getLocalization('menus')}`)
-                .join('<br/>'),
-            title: getLocalization('cafetoria'),
-            type: 'cafetoria',
-            group: 5,
-            data: {},
-        });
-
-        // Inform the app about a new cafetoria menus
-        await updateApp('cafetoria', {}, isDev);
-    } catch (e) {
-        console.error('Failed to send notifications', e);
-    }
 };

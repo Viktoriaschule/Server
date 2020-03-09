@@ -4,8 +4,8 @@ import { initDatabase } from "../utils/database";
 import { fetchData } from "../utils/network";
 import { compareLatestAiXformation, setLatestAiXformation } from '../history/history';
 import parseAiXformation from "./axf_parser";
-import { sendNotifications } from "./axf_butler";
 import { setValue, getValue } from "./axf_db";
+import { sendNotifications } from "./axf_notifications";
 
 const isDev = process.argv.length === 3;
 

@@ -120,7 +120,7 @@ const createDefaultTables = (): void => {
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_cafetoria (username VARCHAR(8) NOT NULL, keyfob_id TEXT, keyfob_key TEXT, timestamp VARCHAR(24) NOT NULL, UNIQUE KEY unique_username (username)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
-        'CREATE TABLE IF NOT EXISTS users_settings (token VARCHAR(255) NOT NULL, key_name VARCHAR(20) NOT NULL, value BOOLEAN NOT NULL, UNIQUE KEY unique_preference (token, key_name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
+        'CREATE TABLE IF NOT EXISTS users_settings (token VARCHAR(255) NOT NULL, key_name VARCHAR(60) NOT NULL, value BOOLEAN NOT NULL, UNIQUE KEY unique_preference (token, key_name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_devices (username VARCHAR(8) NOT NULL, token VARCHAR(255) NOT NULL, os TEXT NOT NULL, version TEXT NOT NULL, name TEXT NOT NULL, last_active VARCHAR(24) NOT NULL, UNIQUE KEY unique_username (username, token)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(

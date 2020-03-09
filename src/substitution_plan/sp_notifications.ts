@@ -24,7 +24,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
             if (!isDev) {
                 console.log(day + ': ' + 'The day has passed, do not send notifications');
                 return;
-            } 
+            }
             console.log('Do not ignore passed day, because of the dev tag');
         }
         const weekday = new Date(substitutionplanDay.date).getDay() - 1;
@@ -51,7 +51,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                     if (unsure) text += ')';
 
                     return text;
-                }).join('\n');
+                }).join('<br>');
                 if (text.length === 0) text = getLocalization('noChanges');
 
                 /// Check if notification changed to last time
@@ -98,20 +98,24 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
         console.log(day + ': ' + `Ignore ${notChanged} notifications, because they did not changed`);
         console.log(day + ': ' + `Send ${notifications.size} different notifications to ${deviceCount} different devices`);
         for (var notification of Array.from(notifications.keys())) {
-            const changesCount = notification.split('|')[1].split('\n').length;
-            await sendNotification(isDev, {
-                devices: notifications.get(notification) || [],
-                body: changesCount == 0 ? notification.split('||')[1] : `${changesCount} ${getLocalization('changes')}`,
-                bigBody: notification.split('||')[1],
-                title: notification.split('||')[0],
-                type: 'substitutionPlan',
-                group: weekday,
-                closeGroups: [0, 1, 2, 3, 4],
-                data: {
-                    weekday: weekday.toString(),
-                    'day': day.toString(),
-                },
-            }, false);
+            try {
+                const changesCount = notification.split('||')[1].split('<br>').length;
+                await sendNotification(isDev, {
+                    devices: notifications.get(notification) || [],
+                    body: changesCount == 0 ? notification.split('||')[1] : `${changesCount} ${getLocalization('changes')}`,
+                    bigBody: notification.split('||')[1],
+                    title: notification.split('||')[0],
+                    type: 'substitutionPlan',
+                    group: weekday,
+                    closeGroups: [0, 1, 2, 3, 4],
+                    data: {
+                        weekday: weekday.toString(),
+                        'day': day.toString(),
+                    },
+                }, false);
+            } catch (e) {
+                console.error(`Cannot send notification:`, e);
+            }
         }
 
         await updateApp('substitutionPlan', {

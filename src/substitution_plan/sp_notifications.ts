@@ -1,11 +1,10 @@
 import crypto from 'crypto';
-import {updateApp} from '../utils/update_app';
-import {sendNotification} from '../utils/notification';
-import {Device, SubstitutionPlan} from '../utils/interfaces';
-import {getSubstitutionsForUser} from './sp_filter';
-import {getDevices, getNotification, getPreference, getUsers, setNotification} from '../tags/tags_db';
+import { sendNotification, updateApp } from '../utils/notification';
+import { Device, SubstitutionPlan } from '../utils/interfaces';
+import { getSubstitutionsForUser } from './sp_filter';
+import { getDevices, getNotification, getPreference, getUsers, setNotification } from '../tags/tags_db';
 import getLocalization from '../utils/localizations';
-import {getSubjects} from '../subjects/subjects_butler';
+import { getSubjects } from '../subjects/subjects_butler';
 
 /**
  * Sends substitution plan notifications to all devices
@@ -22,8 +21,11 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
         if (date.getTime() < current.getTime() && !(date.getDate() === current.getDate()
             && date.getMonth() === current.getMonth()
             && date.getFullYear() === current.getFullYear())) {
-            console.log(day + ': ' + 'The day has passed, do not send notifications');
-            return;
+            if (!isDev) {
+                console.log(day + ': ' + 'The day has passed, do not send notifications');
+                return;
+            }
+            console.log('Do not ignore passed day, because of the dev tag');
         }
         const weekday = new Date(substitutionplanDay.date).getDay() - 1;
 
@@ -73,7 +75,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                 for (let device of devices) {
                     try {
                         // Check if the device has notifications enabled
-                        var getNotifications = await getPreference(device.firebaseId, 'spNotifications');
+                        var getNotifications = await getPreference(device.firebaseId, 'notifications-substitutionPlan');
                         if (getNotifications === undefined) getNotifications = true;
                         if (!getNotifications) continue;
 
@@ -98,25 +100,25 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
         for (var notification of Array.from(notifications.keys())) {
             try {
                 const changesCount = notification.split('||')[1].split('<br>').length;
-                await sendNotification({
+                await sendNotification(isDev, {
                     devices: notifications.get(notification) || [],
                     body: changesCount == 0 ? notification.split('||')[1] : `${changesCount} ${getLocalization('changes')}`,
                     bigBody: notification.split('||')[1],
                     title: notification.split('||')[0],
+                    type: 'substitutionPlan',
+                    group: weekday,
+                    closeGroups: [0, 1, 2, 3, 4],
                     data: {
-                        type: 'substitution plan',
                         weekday: weekday.toString(),
                         'day': day.toString(),
-                    }
-                });
+                    },
+                }, false);
             } catch (e) {
                 console.error(`Cannot send notification:`, e);
             }
         }
 
-        await updateApp({
-            'type': 'substitution plan',
-            'action': 'update',
+        await updateApp('substitutionPlan', {
             'day': day.toString(),
             'weekday': weekday.toString()
         }, isDev);

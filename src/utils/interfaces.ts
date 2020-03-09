@@ -227,6 +227,7 @@ export interface AiXformation {
 
 export interface Post {
     id: number;
+    /** ISO-Date */
     date: string;
     title: string;
     url: string;

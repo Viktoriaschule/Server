@@ -1,12 +1,12 @@
 import config from '../utils/config';
 import request from 'request';
-import {parse} from 'node-html-parser';
+import { parse } from 'node-html-parser';
 import extractData from './cafetoria_parser';
-import {Cafetoria} from '../utils/interfaces';
-import {compareLatestCafetoria, setLatestCafetoria} from '../history/history';
-import {initFirebase} from "../utils/firebase";
-import {initDatabase} from "../utils/database";
-import {sendNotifications} from "./cafetoria_butler";
+import { Cafetoria } from '../utils/interfaces';
+import { compareLatestCafetoria, setLatestCafetoria } from '../history/history';
+import { initFirebase } from "../utils/firebase";
+import { initDatabase } from "../utils/database";
+import { sendNotifications } from './cafetoria_notifications';
 
 const isDev = process.argv.length === 3;
 
@@ -90,7 +90,7 @@ export const fetchDataForUser = async (id: string, pin: string): Promise<Cafetor
             }).catch(reject);
         });
     }
-    return {error: 'Credentials must not be null', saldo: undefined, days: []};
+    return { error: 'Credentials must not be null', saldo: undefined, days: [] };
 };
 
 /**

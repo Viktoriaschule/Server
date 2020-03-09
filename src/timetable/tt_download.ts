@@ -3,10 +3,9 @@ import path from 'path';
 import { setLatestTimetable, compareLatestTimetable } from '../history/history';
 import { initFirebase } from '../utils/firebase';
 import { extractData } from './tt_parser';
-import { sendNotifications } from './tt_butler';
 import { Timetables } from '../utils/interfaces';
-import { rmvAllSelections } from '../tags/tags_db';
 import { initDatabase } from '../utils/database';
+import { sendNotifications } from './tt_notifications';
 
 const isDev = process.argv.length === 3;
 

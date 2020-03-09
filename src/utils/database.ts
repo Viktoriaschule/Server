@@ -80,7 +80,6 @@ export const initDatabase = (): Promise<boolean> => {
                 resolve(false);
                 return;
             }
-            ;
             console.log('Connected to database');
             createDefaultTables();
             resolve(true);
@@ -121,7 +120,7 @@ const createDefaultTables = (): void => {
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_cafetoria (username VARCHAR(8) NOT NULL, keyfob_id TEXT, keyfob_key TEXT, timestamp VARCHAR(24) NOT NULL, UNIQUE KEY unique_username (username)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
-        'CREATE TABLE IF NOT EXISTS users_settings (token VARCHAR(255) NOT NULL, key_name VARCHAR(20) NOT NULL, value BOOLEAN NOT NULL, UNIQUE KEY unique_preference (token, key_name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
+        'CREATE TABLE IF NOT EXISTS users_settings (token VARCHAR(255) NOT NULL, key_name VARCHAR(60) NOT NULL, value BOOLEAN NOT NULL, UNIQUE KEY unique_preference (token, key_name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_devices (username VARCHAR(8) NOT NULL, token VARCHAR(255) NOT NULL, os TEXT NOT NULL, version TEXT NOT NULL, name TEXT NOT NULL, last_active VARCHAR(24) NOT NULL, UNIQUE KEY unique_username (username, token)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
@@ -129,13 +128,14 @@ const createDefaultTables = (): void => {
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS data_substitution_plan (date_time VARCHAR(24) NOT NULL, updated VARCHAR(24) NOT NULL, data LONGTEXT NOT NULL, UNIQUE KEY unique_date_time (date_time, updated)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
+        'CREATE TABLE IF NOT EXISTS data_aixformation (name VARCHAR(8) NOT NULL, data VARCHAR(40) NOT NULL, UNIQUE KEY unique_name (name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
+    dbConnection.query(
         'CREATE TABLE IF NOT EXISTS data_loaded (name VARCHAR(19) NOT NULL, data LONGTEXT NOT NULL, UNIQUE KEY unique_name (name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS data_updates (name VARCHAR(19) NOT NULL, value VARCHAR(40) NOT NULL, UNIQUE KEY unique_name (name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_login (username VARCHAR(8) NOT NULL, password VARCHAR(64) NOT NULL, UNIQUE KEY unique_username (username)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
 }
-
 /** Checks if the database connection is already initialized */
 const checkDatabaseStatus = (): boolean => {
     if (!dbConnection || (dbConnection.state != 'authenticated' && dbConnection.state != 'connected')) {

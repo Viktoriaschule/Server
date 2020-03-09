@@ -1,11 +1,12 @@
 import { SubstitutionPlan, Substitution, SubstitutionPlanGrades } from '../utils/interfaces';
 import { getRoomID } from '../utils/rooms';
+import getLocalization from '../utils/localizations';
 
 /**
  * Parses the week (A/B), date and update in ISO-8601 string
  * @param raw parsed html object
  */
-export const parseDates = (raw: any): {week: number, date: string, update: string} => {
+export const parseDates = (raw: any): { week: number, date: string, update: string } => {
     // Get dates
     let week = -1;
     let date = new Date(2000, 1, 1).toISOString();
@@ -52,13 +53,13 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
     const grades = ['5a', '5b', '5c', '6a', '6b', '6c', '7a', '7b', '7c', '8a', '8b', '8c', '9a', '9b', '9c', 'ef', 'q1', 'q2']
     const unparsed: SubstitutionPlanGrades = {};
     const data: SubstitutionPlanGrades = {};
-    
+
     unparsed.other = [];
     grades.forEach((grade: string) => {
         unparsed[grade] = [];
         data[grade] = [];
     });
-    
+
     // Parse changes
     try {
         raw.querySelectorAll('tr').forEach((row: any, i: number) => {
@@ -78,14 +79,14 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                             rawUnit.split('-').forEach((cUnit: any) => {
                                 let unit = parseInt(cUnit.trim()) - 1;
                                 if (unit > 4) unit++;
-                                
+
                                 // Get the type of the substitution
                                 const typeText = row.childNodes[3].childNodes[0].rawText.trim();
                                 let type = typeText === 'Entfall' ? 1 : typeText === 'Klausur' ? 2 : 0;
-                                
+
                                 // Get the info text
-                                const info = removeUnusedCharacters(row.childNodes[6].rawText);
-                                
+                                let info = removeUnusedCharacters(row.childNodes[6].rawText);
+                                let description = '';
                                 let normalSubject = '';
                                 let normalCourse;
                                 let normalRoom = '';
@@ -166,13 +167,29 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                     normalRoom = removeUnusedCharacters(roomCell.childNodes[0].rawText);
                                     newRoom = removeUnusedCharacters(roomCell.childNodes[1].rawText.replace('→', ''));
                                 }
-                                
+
+                                // Handle Reststunde
+                                if (info.toLowerCase().includes('rest')) {
+                                    info = '';
+                                    description = getLocalization('remainingHour');
+                                    type = 0;
+                                } else if (type == 0) {
+                                    if (normalSubject == newSubject) {
+                                        if (normalTeacher != newTeacher) {
+                                            description = getLocalization('substitution');
+                                        } else if (normalRoom != newRoom) {
+                                            description = getLocalization('roomChange');
+                                        }
+                                    }
+                                }
+
                                 const substitution: Substitution = {
                                     unit: unit,
                                     type: type,
                                     info: info,
                                     id: undefined,
                                     courseID: undefined,
+                                    description: description,
                                     original: {
                                         subjectID: normalSubject.toLowerCase().replace(/[0-9]/g, ''),
                                         teacherID: normalTeacher.toLowerCase(),
@@ -182,16 +199,17 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                     changed: {
                                         subjectID: newSubject.toLowerCase().replace(/[0-9]/g, ''),
                                         teacherID: newTeacher.toLowerCase(),
-                                        roomID: getRoomID(newRoom.toLowerCase().replace(' ', ''))
+                                        roomID: getRoomID(newRoom.toLowerCase().replace(' ', '')),
+
                                     }
                                 };
 
                                 data[grade].push(substitution);
                             });
-                            
+
                         } catch (e) {
                             console.error('Cannot parse substitution:', i, parsedDates.date, row, e);
-                            
+
                             // Push raw line to the grade object in unparsed
                             const rawLine = row.childNodes.map((element: any) => element.rawText.replace('&nbsp;', '')).join(' ');
                             unparsed[grade].push(rawLine);
@@ -228,7 +246,7 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
  * @returns the optimized string
  */
 const removeUnusedCharacters = (text: string): string => {
-    return text.replace( /\s\s+/g, ' ' ).replace('→', '').replace('&nbsp;', '').replace('---', '');
+    return text.replace(/\s\s+/g, ' ').replace('→', '').replace('&nbsp;', '').replace('---', '');
 }
 
 export default parseSubstitutionPlan;

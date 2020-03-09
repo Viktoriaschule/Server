@@ -82,6 +82,8 @@ export interface Substitution {
     courseID: string | undefined;
     original: SubstitutionDetails;
     changed: SubstitutionDetails;
+    /** A specific substitution case description */
+    description: string;
 }
 
 export interface SubstitutionDetails {

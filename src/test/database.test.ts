@@ -17,9 +17,9 @@ const testDevUser: User = {
 };
 const testDevice: Device = {
     os: 'TestOS',
-    name: 'TestPhone',
     appVersion: '1.0.0',
     firebaseId: 'my-firebase-id-123',
+    package: 'com.example',
     lastActive: new Date().toISOString()
 };
 const testCafetoriaLogin: CafetoriaLogin = {
@@ -97,8 +97,8 @@ describe('database', () => {
             if (device) {
                 expect(device.appVersion).toBe(device.appVersion);
                 expect(device.firebaseId).toBe(device.firebaseId);
-                expect(device.name).toBe(device.name);
                 expect(device.os).toBe(device.os);
+                expect(device.package).toBe(device.package);
                 expect(device.lastActive).toBe(device.lastActive);
             }
             done();

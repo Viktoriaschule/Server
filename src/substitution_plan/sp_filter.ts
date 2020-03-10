@@ -90,7 +90,8 @@ export const getSubstitutionsForUser = async (user: User, substitutionPlan: Subs
     // Reduces the ids to string arrays
     const selections = await getSelections(user.username) || [];
     const selectedCourses = selections.map((course) => course.courseID);
-    const exams = (await getExams(user.username) || []).map((exam) => exam.subject);
+    const _exams = await getExams(user.username) || [];
+    const exams = _exams.map((exam) => exam.subject);
     const timetable = await loadData<Timetables>('timetable', { date: new Date().toISOString(), grades: {} });
 
     return substitutionPlan.data[user.grade].filter((substitution) => {
@@ -102,7 +103,8 @@ export const getSubstitutionsForUser = async (user: User, substitutionPlan: Subs
         if (substitution.courseID) {
             if (selectedCourses.includes(substitution.courseID || '-')) {
                 if (substitution.type === 2) {
-                    return exams.includes(substitution.original.subjectID || '-');
+                    const index = exams.indexOf(substitution.original.subjectID || '-');
+                    return index < 0 ? true : _exams[index].writing;
                 }
                 return true;
             }
@@ -112,9 +114,6 @@ export const getSubstitutionsForUser = async (user: User, substitutionPlan: Subs
         if (substitution.id) {
             const course = getCourseIDsFromID(timetable, user.grade, substitution.id || '');
             if (selectedCourses.includes(course)) {
-                if (substitution.type === 2) {
-                    return exams.includes(substitution.original.subjectID || '-');
-                }
                 return true;
             }
         }

@@ -42,15 +42,19 @@ const filterSubstitutionPlan = async (substitutionPlan: SubstitutionPlan): Promi
                             if (subjects.length === 1) {
                                 substitution.id = subjects[0].id;
                                 substitution.courseID = subjects[0].courseID;
-
                                 // Auto fill a substitution (For empty rooms or teachers)
                                 autoFillSubstitution(substitution, subjects[0]);
                             } else {
                                 console.error(`Cannot filter grade: ${grade} unit: ${substitution.unit}`);
                             }
                         }
-                        if (substitution.original.course) {
-                            substitution.courseID = `${grade}-${substitution.original.course}-${substitution.original.subjectID}`;
+                        if (substitution.original.course && !substitution.courseID) {
+                            const course = substitution.original.course.split(' ');
+                            if (course.length === 2) {
+                                substitution.courseID = `${grade}-${course[1]}-${course[0]}`;
+                            } else {
+                                console.error(`Cannot filter (exam) grade: ${grade} unit: ${substitution.unit}`);
+                            }
                         }
                     } catch (e) {
                         console.error(`Failed to filter grade: ${grade} unit: ${substitution.unit}`);

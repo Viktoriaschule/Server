@@ -120,7 +120,7 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                 if (subjectCell.childNodes.length === 1) {
                                     if (subjectCell.querySelectorAll('s').length === 1) {
                                         normalSubject = removeUnusedCharacters(subjectCell.childNodes[0].rawText).split(' ')[0];
-                                        normalCourse = removeUnusedCharacters(subjectCell.childNodes[0].rawText).split(' ')[1];
+                                        normalCourse = removeUnusedCharacters(subjectCell.childNodes[0].rawText);
                                         newSubject = '';
                                         // newCourse = '';
                                         if (typeText === 'Trotz Absenz') {
@@ -129,7 +129,7 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                     }
                                     else {
                                         normalSubject = removeUnusedCharacters(subjectCell.childNodes[0].rawText).split(' ')[0];
-                                        normalCourse = removeUnusedCharacters(subjectCell.childNodes[0].rawText).split(' ')[1];
+                                        normalCourse = removeUnusedCharacters(subjectCell.childNodes[0].rawText);
                                         // newCourse = normalCourse;
                                         newSubject = normalSubject;
                                     }
@@ -137,9 +137,8 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                 // Subject changed
                                 else if (subjectCell.childNodes.length === 2) {
                                     normalSubject = removeUnusedCharacters(subjectCell.childNodes[0].rawText).split(' ')[0];
-                                    normalCourse = removeUnusedCharacters(subjectCell.childNodes[0].rawText).split(' ')[1];
+                                    normalCourse = removeUnusedCharacters(subjectCell.childNodes[0].rawText);
                                     newSubject = removeUnusedCharacters(subjectCell.childNodes[1].rawText.replace('→', '')).split(' ')[0];
-                                    // newCourse = removeUnusedCharacters(subjectCell.childNodes[1].rawText.replace('→', '')).split(' ')[1];
                                 }
 
                                 let roomCell = row.childNodes[5];

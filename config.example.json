@@ -15,5 +15,6 @@
     "dbName": "DATABASE",
     "dbUser": "USERNAME",
     "dbPassword": "PASSWORD",
-    "dbPort": 3306
+    "dbPort": 3306,
+    "debugHost": "HOST_OF_DEBUG_SERVER"
 }

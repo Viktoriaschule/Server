@@ -1,8 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import {CafetoriaLogin, Device, Exam, Selection, Tags} from '../utils/interfaces';
-import getAuth, {isDeveloper} from '../utils/auth';
-import {getGrade} from '../authentication/ldap';
+import { CafetoriaLogin, Device, Exam, Selection, Tags } from '../utils/interfaces';
+import getAuth, { isDeveloper } from '../utils/auth';
+import { getGrade } from '../authentication/ldap';
 import {
     getExam,
     getExams,
@@ -15,7 +15,7 @@ import {
     setSelection,
     setUser
 } from './tags_db';
-import {getCafetoriaLogin, setCafetoriaLogin} from '../cafetoria/cafetoria_db';
+import { getCafetoriaLogin, setCafetoriaLogin } from '../cafetoria/cafetoria_db';
 
 const tagsRouter = express.Router();
 tagsRouter.use(bodyParser.json());
@@ -37,7 +37,7 @@ tagsRouter.get('/', async (req, res) => {
         return res.json({});
     }
     res.status(401);
-    return res.json({error: 'unauthorized'});
+    return res.json({ error: 'unauthorized' });
 });
 
 tagsRouter.post('/', async (req, res) => {
@@ -92,6 +92,7 @@ tagsRouter.post('/', async (req, res) => {
         for (var selection of selections) {
             if (selection.block && selection.timestamp) {
                 const dbSelection = await getSelection(auth.username, selection.block);
+                selection.timestamp = new Date(Date.parse(selection.timestamp)).toISOString();
                 if (!dbSelection || Date.parse(selection.timestamp) > Date.parse(dbSelection.timestamp)) {
                     setSelection(auth.username, selection);
                 }
@@ -118,10 +119,10 @@ tagsRouter.post('/', async (req, res) => {
         }
     }
     if (errors.length > 0) {
-        res.json({'errors': errors});
+        res.json({ 'errors': errors });
         return;
     }
-    res.json({'error': null});
+    res.json({ 'error': null });
 });
 
 export default tagsRouter;

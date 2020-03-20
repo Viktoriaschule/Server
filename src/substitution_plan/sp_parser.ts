@@ -202,7 +202,7 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
 
                                 data[grade].push(substitution);
 
-                                // Add the substitution to the correct teacher
+                                // Add the substitution to the original teacher
                                 const teacher = substitution.original.participantID;
                                 if (!data[teacher]) {
                                     data[teacher] = [];
@@ -212,7 +212,26 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
 
                                 // Change participant to grade
                                 teacherSubstitution.original.participantID = rawGrades.join('+');
-                                teacherSubstitution.changed.participantID = rawGrades.join('+');
+
+                                // If there is a new teacher, add the substitution also to the new teacher
+                                const changedTeacher = substitution.changed.participantID;
+                                if (changedTeacher.length > 0) {
+                                    if (!data[changedTeacher]) {
+                                        data[changedTeacher] = [];
+                                    }
+
+                                    const teacherChanged = changedTeacher !== teacher;
+
+                                    // clone substitution object
+                                    const changedTeacherSubstitution: Substitution = JSON.parse(JSON.stringify(substitution));
+
+                                    if (!teacherChanged) {
+                                        teacherSubstitution.changed.participantID = rawGrades.join('+');
+                                    } else {
+                                        changedTeacherSubstitution.changed.participantID = rawGrades.join('+');
+                                        data[changedTeacher].push(changedTeacherSubstitution);
+                                    }
+                                }
 
                                 // Add substitution to the teacher
                                 data[teacher].push(teacherSubstitution);

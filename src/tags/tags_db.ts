@@ -135,6 +135,7 @@ export const getExams = async (username: string): Promise<Exam[] | undefined> =>
 /** Sets a new device or updates old parameters */
 export const setDevice = (username: string, device: Device): void => {
     const updateAttr = {
+        username: username,
         os: device.os,
         version: device.appVersion,
         last_active: device.lastActive,

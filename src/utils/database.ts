@@ -114,7 +114,7 @@ const createDefaultTables = (): void => {
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users (username VARCHAR(8) NOT NULL, user_group TEXT NOT NULL, user_type INT NOT NULL, last_active VARCHAR(24) NOT NULL, UNIQUE KEY unique_username (username)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
-        'CREATE TABLE IF NOT EXISTS users_selections (username VARCHAR(8) NOT NULL, block VARCHAR(5) NOT NULL, course_id VARCHAR(12), timestamp VARCHAR(24) NOT NULL, UNIQUE KEY unique_username_block (username, block)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
+        'CREATE TABLE IF NOT EXISTS users_selections (username VARCHAR(8) NOT NULL, block VARCHAR(7) NOT NULL, course_id VARCHAR(14), timestamp VARCHAR(24) NOT NULL, UNIQUE KEY unique_username_block (username, block)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_exams (username VARCHAR(8) NOT NULL, subject VARCHAR(3) NOT NULL, writing BOOLEAN, timestamp VARCHAR(24) NOT NULL, UNIQUE KEY unique_exam (username, subject)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
@@ -122,7 +122,7 @@ const createDefaultTables = (): void => {
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_settings (token VARCHAR(255) NOT NULL, key_name VARCHAR(60) NOT NULL, value BOOLEAN NOT NULL, UNIQUE KEY unique_preference (token, key_name)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
-        'CREATE TABLE IF NOT EXISTS users_devices (username VARCHAR(8) NOT NULL, token VARCHAR(255) NOT NULL, os TEXT NOT NULL, version TEXT NOT NULL, package TEXT NOT NULL, last_active VARCHAR(24) NOT NULL, UNIQUE KEY unique_username (username, token)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
+        'CREATE TABLE IF NOT EXISTS users_devices (username VARCHAR(8) NOT NULL, token VARCHAR(255) NOT NULL, os TEXT NOT NULL, version TEXT NOT NULL, package TEXT NOT NULL, last_active VARCHAR(24) NOT NULL, UNIQUE KEY unique_token (token)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(
         'CREATE TABLE IF NOT EXISTS users_notifications (username VARCHAR(8) NOT NULL, day_index INT NOT NULL, hash TEXT, UNIQUE KEY unique_notification (username, day_index)) ENGINE = InnoDB DEFAULT CHARSET=utf8;');
     dbConnection.query(

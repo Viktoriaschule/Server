@@ -51,7 +51,7 @@ app.use('/status', statusRouter);
 const minutely = async (): Promise<void> => {
     await runUpdates('minutely', {
         'substitution plan': async () => runUpdate(updateSubstitutionPlan()),
-    });
+    }, false);
     setTimeout(minutely, 60000);
     updatedMinutely();
 };
@@ -91,10 +91,10 @@ const daily = async (): Promise<void> => {
     updatedDaily();
 };
 
-const runUpdates = async (type: string, updates: any): Promise<void> => {
+const runUpdates = async (type: string, updates: any, log = true): Promise<void> => {
     for (let update of Object.keys(updates)) {
         try {
-            console.log('Update', update);
+            if (log) console.log('Update', update);
             await updates[update]().catch((e: any) => {
                 console.error(`Failed to run ${type} update ${updates[update]}:`, e);
             });

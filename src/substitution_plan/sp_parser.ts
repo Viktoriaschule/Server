@@ -176,6 +176,8 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                         } else if (normalRoom != newRoom) {
                                             description = getLocalization('roomChange');
                                         }
+                                    } else {
+                                        description = getLocalization('shift')
                                     }
                                 }
 

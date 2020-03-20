@@ -6,6 +6,7 @@ import {getDevices, getNotification, getPreference, getUsers, setNotification} f
 import getLocalization from '../utils/localizations';
 import {getSubjects} from '../subjects/subjects_butler';
 import {getSubstitutionPlanForGroup} from "./sp_butler";
+import {isTeacher} from "../utils/auth";
 
 /**
  * Sends substitution plan notifications to all devices
@@ -19,6 +20,7 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
             throw 'Substitution plan is undefined';
         }
         const date = new Date(substitutionPlanDay.date);
+        const grades: string[] = getLocalization('grades');
         const current = new Date();
         // Stop sending notifications if the substitution plan day is already passed
         if (date.getTime() < current.getTime() && !(date.getDate() === current.getDate()
@@ -43,19 +45,33 @@ export const sendNotifications = async (isDev: boolean, day: number, substitutio
                 const substitutions = await getSubstitutionsForUser(user, spGroup);
                 const subjects = await getSubjects();
 
-                let text = substitutions.map((s) => {
-                    const unsure = s.courseID === undefined && s.id === undefined;
-                    let text = '';
-                    if (unsure) text += '(';
-                    text += `${s.unit + 1}. ${getLocalization('hour')} ${subjects[s.original.subjectID]} ${s.original.participantID.toLocaleUpperCase()}`.trim();
-                    text += ': ';
-                    if (s.type === 0) text += getLocalization('change');
-                    else if (s.type === 1) text += getLocalization('freeLesson');
-                    else if (s.type === 2) text += getLocalization('exam');
-                    if (unsure) text += ')';
+                let text = substitutions
+                    .sort((s1, s2) => s1.unit < s2.unit ? -1 : s1.unit > s2.unit ? 1 : 0)
+                    .map((s) => {
+                        const description = s.description && s.description.length > 0 ? s.description : undefined;
+                        const unsure = s.courseID === undefined && s.id === undefined;
+                        const participantID = s.original.participantID.length >= 2 &&
+                        grades.includes(s.original.participantID.substr(0, 2)) &&
+                        grades.indexOf(s.original.participantID) <= 14 ?
+                            s.original.participantID :
+                            s.original.participantID.toLocaleUpperCase();
+                        let text = '';
+                        if (unsure) text += '(';
+                        text += `${s.unit + 1}. ${getLocalization('hour')} ${subjects[s.original.subjectID]} ${participantID}`.trim();
+                        text += ': ';
+                        if (s.type === 0) text += description || getLocalization('change');
+                        else if (s.type === 1) text += getLocalization('freeLesson');
+                        else if (s.type === 2) {
+                            if (isTeacher(user.userType)) {
+                                text += getLocalization('examSupervision');
+                            } else {
+                                text += getLocalization('exam');
+                            }
+                        }
+                        if (unsure) text += ')';
 
-                    return text;
-                }).join('<br>');
+                        return text;
+                    }).join('<br>');
                 if (text.length === 0) text = getLocalization('noChanges');
 
                 /// Check if notification changed to last time

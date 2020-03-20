@@ -26,6 +26,7 @@ const filterSubstitutionPlan = async (substitutionPlan: SubstitutionPlan): Promi
                         const subject = ttUnit.subjects[0];
                         substitution.id = subject.id;
                         substitution.courseID = subject.courseID;
+                        autoFillSubstitution(substitution, subject);
                         return;
                     }
 

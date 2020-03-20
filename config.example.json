@@ -1,20 +1,27 @@
 {
-    "port": "PORT",
-    "username": "USERNAME",
-    "password": "PASSWORD",
-    "cafetoriaId": "YOUR_SERVICE_ID",
-    "cafetoriaPin": "YOUR_SERVICE_PIN",
-    "emailUser": "TEST@EXAMPLE.de",
-    "emailKey": "EMAIL_KEY",
-    "apiEndpoint": "https://api.vsa.2bad2c0.de/",
-    "developers": ["USERNAME", "USERNAME"],
-    "ldapUrl": "URL_TO_LDAP_API",
-    "ldapUsername": "LDAP_DEVELOPER_USERNAME",
-    "ldapPassword": "LDAP_DEVELOPER_PASSWORD",
-    "dbHost": "HOST_URL",
-    "dbName": "DATABASE",
-    "dbUser": "USERNAME",
-    "dbPassword": "PASSWORD",
-    "dbPort": 3306,
-    "debugHost": "HOST_OF_DEBUG_SERVER"
+  "port": "PORT",
+  "username": "USERNAME",
+  "password": "PASSWORD",
+  "cafetoriaId": "YOUR_SERVICE_ID",
+  "cafetoriaPin": "YOUR_SERVICE_PIN",
+  "emailUser": "TEST@EXAMPLE.de",
+  "emailKey": "EMAIL_KEY",
+  "apiEndpoint": "https://api.vsa.2bad2c0.de/",
+  "developers": [
+    "USERNAME",
+    "USERNAME"
+  ],
+  "testUsers": [
+    "USERNAME",
+    "USERNAME"
+  ],
+  "ldapUrl": "URL_TO_LDAP_API",
+  "ldapUsername": "LDAP_DEVELOPER_USERNAME",
+  "ldapPassword": "LDAP_DEVELOPER_PASSWORD",
+  "dbHost": "HOST_URL",
+  "dbName": "DATABASE",
+  "dbUser": "USERNAME",
+  "dbPassword": "PASSWORD",
+  "dbPort": 3306,
+  "debugHost": "HOST_OF_DEBUG_SERVER"
 }

@@ -1,8 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { CafetoriaLogin, Device, Exam, Selection, Tags } from '../utils/interfaces';
-import getAuth, { isDeveloper } from '../utils/auth';
-import { getGrade } from '../authentication/ldap';
+import {CafetoriaLogin, Device, Exam, LdapUser, Selection, Tags} from '../utils/interfaces';
+import getAuth, {getUserType} from '../utils/auth';
+import {getGroup} from '../authentication/ldap';
 import {
     getExam,
     getExams,
@@ -15,7 +15,7 @@ import {
     setSelection,
     setUser
 } from './tags_db';
-import { getCafetoriaLogin, setCafetoriaLogin } from '../cafetoria/cafetoria_db';
+import {getCafetoriaLogin, setCafetoriaLogin} from '../cafetoria/cafetoria_db';
 
 const tagsRouter = express.Router();
 tagsRouter.use(bodyParser.json());
@@ -26,30 +26,35 @@ tagsRouter.get('/', async (req, res) => {
         const user = await getUser(username);
         if (user) {
             const tags: Tags = {
-                grade: user.grade,
                 group: user.group,
+                userType: user.userType,
                 selected: await getSelections(username) || [],
                 exams: await getExams(username) || [],
                 cafetoria: await getCafetoriaLogin(username)
-            }
+            };
             return res.json(tags);
         }
         return res.json({});
     }
     res.status(401);
-    return res.json({ error: 'unauthorized' });
+    return res.json({error: 'unauthorized'});
 });
+
+export const registerUser = async (username: string, password: string, user?: LdapUser): Promise<void> => {
+    const group = await getGroup(username, password, user);
+    setUser({
+        username: username,
+        group: group?.group || '',
+        userType: getUserType(username, group?.isTeacher || false),
+        last_active: undefined,
+    });
+};
 
 tagsRouter.post('/', async (req, res) => {
 
     // Update the user
     const auth = getAuth(req);
-    setUser({
-        username: auth.username,
-        grade: await getGrade(auth.username, auth.password),
-        group: isDeveloper(auth.username) ? 5 : 1,
-        last_active: undefined,
-    });
+    await registerUser(auth.username, auth.password);
 
     const errors = [];
 
@@ -89,7 +94,7 @@ tagsRouter.post('/', async (req, res) => {
     // If the selections are updated, update them
     if (req.body.selected) {
         const selections: Selection[] = req.body.selected;
-        for (var selection of selections) {
+        for (let selection of selections) {
             if (selection.block && selection.timestamp) {
                 const dbSelection = await getSelection(auth.username, selection.block);
                 selection.timestamp = new Date(Date.parse(selection.timestamp)).toISOString();
@@ -106,7 +111,7 @@ tagsRouter.post('/', async (req, res) => {
     // If the exams are updated, update them
     if (req.body.exams) {
         const exams: Exam[] = req.body.exams;
-        for (var exam of exams) {
+        for (let exam of exams) {
             if (exam.subject && exam.timestamp) {
                 const dbExam = await getExam(auth.username, exam.subject);
                 if (!dbExam || Date.parse(exam.timestamp) > Date.parse(dbExam.timestamp)) {
@@ -119,10 +124,10 @@ tagsRouter.post('/', async (req, res) => {
         }
     }
     if (errors.length > 0) {
-        res.json({ 'errors': errors });
+        res.json({'errors': errors});
         return;
     }
-    res.json({ 'error': null });
+    res.json({'error': null});
 });
 
 export default tagsRouter;

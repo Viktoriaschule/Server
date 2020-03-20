@@ -1,19 +1,42 @@
-import { initDatabase } from "../utils/database";
-import { setUser, getUser, rmvUser, setDevice, getUsers, getDevice, rmvDevice, getDevices, getAllDevices, setExam, getExam, rmvExams, getExams, setNotification, getNotification, rmvNotifications, setSelection, getSelection, rmvSelections, getSelections, setPreference, getPreference, rmvPreferences } from "../tags/tags_db";
-import { User, Device, CafetoriaLogin, Exam, Selection } from "../utils/interfaces";
-import { setCafetoriaLogin, getCafetoriaLogin, rmvCafetoriaLogin } from "../cafetoria/cafetoria_db";
+import {initDatabase} from "../utils/database";
+import {
+    getDevice,
+    getDevices,
+    getExam,
+    getExams,
+    getNotification,
+    getPreference,
+    getSelection,
+    getSelections,
+    getUser,
+    getUsers,
+    rmvDevice,
+    rmvExams,
+    rmvNotifications,
+    rmvPreferences,
+    rmvSelections,
+    rmvUser,
+    setDevice,
+    setExam,
+    setNotification,
+    setPreference,
+    setSelection,
+    setUser
+} from "../tags/tags_db";
+import {CafetoriaLogin, Device, Exam, Selection, User} from "../utils/interfaces";
+import {getCafetoriaLogin, rmvCafetoriaLogin, setCafetoriaLogin} from "../cafetoria/cafetoria_db";
 
 const testUser: User = {
     last_active: new Date().toISOString(),
     username: 'maxmust',
-    grade: '5a',
-    group: 1,
+    group: '5a',
+    userType: 1,
 };
 const testDevUser: User = {
     last_active: new Date().toISOString(),
     username: 'maxadmi',
-    grade: 'q1',
-    group: 5,
+    group: 'q1',
+    userType: 5,
 };
 const testDevice: Device = {
     os: 'TestOS',
@@ -54,19 +77,19 @@ describe('database', () => {
             expect(user).toBeDefined();
             if (user) {
                 expect(user.username).toBe(testUser.username);
-                expect(user.grade).toBe(testUser.grade);
+                expect(user.userType).toBe(testUser.userType);
                 expect(user.group).toBe(testUser.group);
             }
             done();
         });
     });
     test('change user', done => {
-        testUser.grade = '6a';
+        testUser.group = '6a';
         expect(() => setUser(testUser)).not.toThrow();
         getUser(testUser.username).then(user => {
             expect(user).toBeDefined();
             if (user) {
-                expect(user.grade).toBe(testUser.grade);
+                expect(user.group).toBe(testUser.group);
             }
             done();
         });

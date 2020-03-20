@@ -1,13 +1,13 @@
-import { AiXformation } from '../utils/interfaces';
-import entities from 'entities';
+import {AiXformation} from '../utils/interfaces';
 import crypto from 'crypto';
 import got from 'got';
 import sharp from 'sharp';
 import fs from "fs";
 import path from "path";
 import stream from "stream";
-import { promisify } from "util";
-import { getValue, setValue } from './axf_db';
+import {promisify} from "util";
+import {getValue, setValue} from './axf_db';
+import {decodeHTML} from "entities";
 
 const pipeline = promisify(stream.pipeline);
 
@@ -41,7 +41,7 @@ const parseAiXformation = async (raw: string, rawUsers: string, rawTags: string)
         await getImage(rawPost);
         aixformation.posts.push({
             id: rawPost.id || '',
-            title: entities.decodeHTML(rawPost.title?.rendered || ''),
+            title: decodeHTML(rawPost.title?.rendered || ''),
             url: rawPost.link || '',
             date: new Date(rawPost.date_gmt).toISOString() || '',
             author: users[rawPost.author]?.name || '',
@@ -54,7 +54,7 @@ const parseAiXformation = async (raw: string, rawUsers: string, rawTags: string)
 
 const getImage = async (rawPost: any) => {
     const url: string = rawPost.jetpack_featured_media_url;
-    const urlHash = crypto.createHash('sha1').update(url).digest('hex')
+    const urlHash = crypto.createHash('sha1').update(url).digest('hex');
     const lastUrl = await getValue(`img-${rawPost.id}`);
 
     // If the image url did not changed, do not download the image again

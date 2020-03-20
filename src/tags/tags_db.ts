@@ -12,18 +12,18 @@ import {Device, Exam, Selection, User} from "../utils/interfaces";
 /** Sets a new user or updates old parameters */
 export const setUser = (user: User): void => {
     const updateAttr = {
-        grade: user.grade,
         user_group: user.group,
+        user_type: user.userType,
         last_active: new Date().toISOString(),
     };
     const updateStr = updateOnlyNonNullAttributes(updateAttr);
-    runDbCmd(`INSERT INTO users VALUES ('${user.username}', '${user.grade}', '${user.group}', '${updateAttr.last_active}') ${updateStr};`);
-}
+    runDbCmd(`INSERT INTO users VALUES ('${user.username}', '${user.group}', '${user.userType}', '${updateAttr.last_active}') ${updateStr};`);
+};
 
 /** Removes a user with the given username */
 export const rmvUser = (user: User): void => {
     runDbCmd(`DELETE FROM users WHERE username='${user.username}';`);
-}
+};
 
 /** Returns one user */
 export const getUser = async (username: string): Promise<User | undefined> => {
@@ -31,28 +31,28 @@ export const getUser = async (username: string): Promise<User | undefined> => {
     if (!dbUser) return undefined;
     return {
         username: username,
-        grade: dbUser.grade,
         group: dbUser.user_group,
+        userType: dbUser.user_type,
         last_active: dbUser.last_active,
     };
-}
+};
 
 /** Returns one user */
 export const getUsers = async (dev = false): Promise<User[]> => {
     let devFilter = '';
     if (dev) {
-        devFilter = ' WHERE user_group=5 OR user_group=6 OR user_group=12';
+        devFilter = ' WHERE user_type=5 OR user_type=6 OR user_type=12';
     }
     const dbUser = (await getDbResults(`SELECT * FROM users${devFilter};`)) || [];
     return dbUser.map((user) => {
         return {
             username: user.username,
-            grade: user.grade,
             group: user.user_group,
+            userType: user.user_type,
             last_active: user.last_active,
         };
     });
-}
+};
 
 /** Sets a selection for user */
 export const setSelection = (username: string, selection: Selection): void => {
@@ -62,7 +62,7 @@ export const setSelection = (username: string, selection: Selection): void => {
     };
     const updateStr = updateAllAttributes(updateAttr);
     runDbCmd(`INSERT INTO users_selections VALUES ('${username}', '${selection.block}', ${toSqlValue(selection.courseID)}, '${selection.timestamp}') ${updateStr};`);
-}
+};
 
 /** Returns the selections for a user*/
 export const getSelection = async (username: string, block: string): Promise<Selection | undefined> => {
@@ -73,17 +73,12 @@ export const getSelection = async (username: string, block: string): Promise<Sel
         courseID: dbSelections.course_id,
         timestamp: dbSelections.timestamp
     };
-}
-
-/** Removes all selections */
-export const rmvAllSelections = (): void => {
-    runDbCmd(`DELETE FROM users_selections;`);
-}
+};
 
 /** Removes all selections for one username */
 export const rmvSelections = (username: string): void => {
     runDbCmd(`DELETE FROM users_selections WHERE username='${username}';`);
-}
+};
 
 /** Returns the selections for a user*/
 export const getSelections = async (username: string): Promise<Selection[] | undefined> => {
@@ -96,7 +91,7 @@ export const getSelections = async (username: string): Promise<Selection[] | und
             timestamp: selection.timestamp
         };
     });
-}
+};
 
 /** Sets a writing option for a course id */
 export const setExam = (username: string, exam: Exam): void => {
@@ -106,7 +101,7 @@ export const setExam = (username: string, exam: Exam): void => {
     };
     const updateStr = updateAllAttributes(updateAttr);
     runDbCmd(`INSERT INTO users_exams VALUES ('${username}', '${exam.subject}', ${toSqlValue(exam.writing)}, '${exam.timestamp}') ${updateStr};`);
-}
+};
 
 /** Returns the writing option for a course id */
 export const getExam = async (username: string, subject: string): Promise<Exam | undefined> => {
@@ -117,12 +112,12 @@ export const getExam = async (username: string, subject: string): Promise<Exam |
         subject: dbExam.subject,
         timestamp: dbExam.timestamp,
     };
-}
+};
 
 /** Removes all exam for a given [username] */
 export const rmvExams = (username: string): void => {
     runDbCmd(`DELETE FROM users_exams WHERE username='${username}';`);
-}
+};
 
 /** Returns all exams for a user */
 export const getExams = async (username: string): Promise<Exam[] | undefined> => {
@@ -135,7 +130,7 @@ export const getExams = async (username: string): Promise<Exam[] | undefined> =>
             timestamp: exam.timestamp
         };
     });
-}
+};
 
 /** Sets a new device or updates old parameters */
 export const setDevice = (username: string, device: Device): void => {
@@ -147,17 +142,17 @@ export const setDevice = (username: string, device: Device): void => {
     };
     const updateStr = updateOnlyNonNullAttributes(updateAttr);
     runDbCmd(`INSERT INTO users_devices VALUES ('${username}', '${device.firebaseId}', '${device.os}', '${device.appVersion}', '${device.package}', '${device.lastActive}') ${updateStr};`);
-}
+};
 
 /** Removes a device */
 export const rmvDevice = (device: Device): void => {
     runDbCmd(`DELETE FROM users_devices WHERE token='${device.firebaseId}';`);
-}
+};
 
 /** Removes all devices of a user */
 export const rmvDevices = (username: string): void => {
     runDbCmd(`DELETE FROM users_devices WHERE username='${username}';`);
-}
+};
 
 /** Returns the device with the username and token */
 export const getDevice = async (username: string, token: string): Promise<Device | undefined> => {
@@ -170,7 +165,7 @@ export const getDevice = async (username: string, token: string): Promise<Device
         lastActive: dbDevice.last_active,
         package: dbDevice.package,
     };
-}
+};
 
 /** Returns all stored devices for a given username */
 export const getDevices = async (username: string): Promise<Device[]> => {
@@ -184,11 +179,12 @@ export const getDevices = async (username: string): Promise<Device[]> => {
             package: device.package,
         };
     });
-}
+};
 
 /** Returns all stored devices */
 export const getAllDevices = async (): Promise<Device[]> => {
-    const dbDevices = (await getDbResults(`SELECT * FROM users_devices;`));
+    const dbDevices = (await getDbResults(`SELECT *
+                                           FROM users_devices;`));
     return dbDevices.map((device) => {
         return {
             firebaseId: device.token,
@@ -198,7 +194,7 @@ export const getAllDevices = async (): Promise<Device[]> => {
             package: device.package,
         };
     });
-}
+};
 
 /** Defines a preference for a device */
 export const setPreference = (token: string, key: string, value: boolean): void => {
@@ -207,19 +203,19 @@ export const setPreference = (token: string, key: string, value: boolean): void 
     };
     const updateStr = updateOnlyNonNullAttributes(updateAttr);
     runDbCmd(`INSERT INTO users_settings VALUES ('${token}', '${key}', ${value}) ${updateStr};`);
-}
+};
 
 /** Deletes all preferences for a device */
 export const rmvPreferences = (token: string): void => {
     runDbCmd(`DELETE FROM users_settings WHERE token='${token}';`);
-}
+};
 
 /** Returns a value for a device preference */
 export const getPreference = async (token: string, key: string): Promise<boolean | undefined> => {
     const dbPreference = (await getDbResults(`SELECT * FROM users_settings WHERE token='${token}' AND key_name='${key}';`))[0];
     if (dbPreference === undefined) return undefined;
-    return dbPreference.value === 1 ? true : false;
-}
+    return dbPreference.value === 1;
+};
 
 /** Define a preference for an user */
 export const setNotification = (username: string, dayIndex: number, notification: string): void => {
@@ -228,16 +224,16 @@ export const setNotification = (username: string, dayIndex: number, notification
     };
     const updateStr = updateAllAttributes(updateAttr);
     runDbCmd(`INSERT INTO users_notifications VALUES ('${username}', ${dayIndex}, ${toSqlValue(notification)}) ${updateStr};`);
-}
+};
 
 /** Removes all notifications for a given username */
 export const rmvNotifications = (username: string): void => {
     runDbCmd(`DELETE FROM users_notifications WHERE username='${username}';`);
-}
+};
 
 /** Returns a value for a user preference */
 export const getNotification = async (username: string, dayIndex: number): Promise<string | undefined> => {
     const dbNotification = (await getDbResults(`SELECT * FROM users_notifications WHERE username='${username}' AND day_index=${dayIndex};`))[0];
     if (dbNotification === undefined) return undefined;
     return dbNotification.hash;
-}
+};

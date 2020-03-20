@@ -49,11 +49,9 @@ app.use('/status', statusRouter);
  * Downloads every minute the substitutionPlan
  */
 const minutely = async (): Promise<void> => {
-    try {
-        await runUpdate(updateSubstitutionPlan());
-    } catch (e) {
-        console.error('Failed to run minutely update:', e);
-    }
+    await runUpdates('minutely', {
+        'substitution plan': async () => runUpdate(updateSubstitutionPlan()),
+    });
     setTimeout(minutely, 60000);
     updatedMinutely();
 };
@@ -62,11 +60,10 @@ const minutely = async (): Promise<void> => {
  * Downloads every hour the aixformation
  */
 const hourly = async (): Promise<void> => {
-    try {
-        await updateAiXformation();
-    } catch (e) {
-        console.error('Failed to run hourly update:', e);
-    }
+    await runUpdates('hourly', {
+        'aixformation': updateAiXformation,
+        'cafetoria': async () => await runUpdate(updateCafetoriaMenus()),
+    });
     setTimeout(hourly, 3600000);
     updatedHourly();
 };
@@ -75,24 +72,13 @@ const hourly = async (): Promise<void> => {
  * Downloads every 24 hours the substitutionPlan
  */
 const daily = async (): Promise<void> => {
-    const updates: any = {
+    await runUpdates('daily', {
         'subjects': async () => await runUpdate(updateSubjects()),
         'teachers': async () => await runUpdate(updateTeachers()),
         'timetable': async () => await runUpdate(updateTimetable()),
         'calendar': async () => await runUpdate(updateCalendar()),
-        'cafetoria': async () => await runUpdate(updateCafetoriaMenus()),
-        'devices': async () => await removeOldDevices(),
-    };
-    for (var update of Object.keys(updates)) {
-        try {
-            console.log('Update', update);
-            await updates[update]().catch((e: any) => {
-                console.error(`Failed to run daily update ${updates[update]}:`, e);
-            });
-        } catch (e) {
-            console.error(`Failed to run daily update ${updates[update]}:`, e);
-        }
-    }
+        'devices': removeOldDevices,
+    });
 
     const now = Date.now();
     const tomorrow = new Date();
@@ -103,6 +89,19 @@ const daily = async (): Promise<void> => {
     const difInMillis = tomorrow.getTime() - now;
     setTimeout(daily, difInMillis);
     updatedDaily();
+};
+
+const runUpdates = async (type: string, updates: any): Promise<void> => {
+    for (let update of Object.keys(updates)) {
+        try {
+            console.log('Update', update);
+            await updates[update]().catch((e: any) => {
+                console.error(`Failed to run ${type} update ${updates[update]}:`, e);
+            });
+        } catch (e) {
+            console.error(`Failed to run ${type} update ${updates[update]}:`, e);
+        }
+    }
 };
 
 const runUpdate = (update: Promise<void>): Promise<void> => {
@@ -119,7 +118,7 @@ const runUpdate = (update: Promise<void>): Promise<void> => {
         update,
         timeout
     ]);
-}
+};
 
 // Start download process
 (async () => {

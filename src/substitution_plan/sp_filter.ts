@@ -62,7 +62,7 @@ const filterSubstitutionPlan = async (substitutionPlan: SubstitutionPlan): Promi
                             // Auto fill a substitution (For empty rooms or teachers)
                             autoFillSubstitution(substitution, subjects[0]);
                         } else {
-                            console.error(`Cannot filter grade: ${group} unit: ${substitution.unit}`);
+                            console.error(`Cannot filter grade: ${group} unit: ${substitution.unit} day: ${new Date(substitutionPlan.date).getDay()}`);
                         }
                     }
                     if (substitution.original.course && !substitution.courseID) {
@@ -70,7 +70,7 @@ const filterSubstitutionPlan = async (substitutionPlan: SubstitutionPlan): Promi
                         if (course.length === 2) {
                             substitution.courseID = `${group}-${course[1]}-${course[0]}`;
                         } else {
-                            console.error(`Cannot filter (exam) grade: ${group} unit: ${substitution.unit}`);
+                            console.error(`Cannot filter (exam) grade: ${group} unit: ${substitution.unit} day: ${new Date(substitutionPlan.date)}`);
                         }
                     }
                 } catch (e) {

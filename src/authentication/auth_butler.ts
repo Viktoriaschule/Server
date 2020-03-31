@@ -1,6 +1,6 @@
 import checkLogin from './ldap';
 import express from 'express';
-import { AsyncAuthorizerCallback } from 'express-basic-auth';
+import {AsyncAuthorizerCallback} from 'express-basic-auth';
 
 export const authRouter = express.Router();
 

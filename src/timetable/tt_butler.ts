@@ -1,57 +1,53 @@
 import express from 'express';
 import download from './tt_download';
-import { Timetables } from '../utils/interfaces';
+import {Timetables} from '../utils/interfaces';
 import getAuth from '../utils/auth';
-import { getGrade } from '../authentication/ldap';
-import { loadData, saveData, shouldForceUpdate } from '../utils/data';
+import {getGroup} from '../authentication/ldap';
+import {shouldForceUpdate} from '../utils/data';
+import {clearTimetables, getTimetableGroup, setTimetableGroup} from "./tt_db";
 
 export const timetableRouter = express.Router();
-const defaultValue: Timetables = { date: new Date().toISOString(), grades: {} };
+const defaultValue: Timetables = {date: new Date().toISOString(), groups: {}};
 
 timetableRouter.get('/', async (req, res) => {
     const auth = getAuth(req);
-    const grade = await getGrade(auth.username, auth.password);
-    return res.json((await loadData<Timetables>('timetable', defaultValue)).grades[grade]);
+    const group = await getGroup(auth.username, auth.password);
+    return res.json((await getTimetableGroup(group.group)) || {
+        date: new Date().toISOString(),
+        group: group.group,
+        data: {},
+    });
 });
 
 /**
  * Updates the timetable
  */
 export const updateTimetable = async (): Promise<void> => {
-    const loaded = await loadData<Timetables>('timetable', defaultValue);
+    // Check if there is a loaded timetable (For an example group)
+    const loaded = await getTimetableGroup('5a');
     return new Promise<void>((resolve, reject) => {
         download(!shouldForceUpdate(loaded, defaultValue))
             .then((timetable) => {
                 if (timetable) {
-                    saveData('timetable', timetable);
+                    clearTimetables();
+                    for (const group of Object.keys(timetable.groups)) {
+                        setTimetableGroup(group, timetable.groups[group]);
+                    }
                 }
                 resolve();
             }).catch(reject);
     });
 };
 
-/**
- * Returns the version of the current timetable
- */
-export const getTimetableVersion = async (): Promise<string> => {
-    return (await loadData<Timetables>('timetable', defaultValue)).date;
-};
-
-/**
- * Returns the current timetable
- */
-export const getTimetable = async (): Promise<Timetables | undefined> => {
-    return loadData<Timetables>('timetable', defaultValue);
-}
-
 
 /**
  * Returns all subjects ids of one course id
- * @param grade for timetable
- * @param courseID searched [courseID]
+ * @param timetables The loaded timetables
+ * @param id The searched [id]
  */
-export const getCourseIDsFromID = (timetables: Timetables, grade: string, id: string): string | undefined => {
-    const timetable = timetables.grades[grade];
+export const getCourseIDsFromID = (timetables: Timetables, id: string): string | undefined => {
+    const grade = id.split('-')[0];
+    const timetable = timetables.groups[grade];
     try {
         return timetable.data
             .days[parseInt(id.split('-')[2])]
@@ -61,4 +57,4 @@ export const getCourseIDsFromID = (timetables: Timetables, grade: string, id: st
     } catch (_) {
         return undefined;
     }
-}
+};

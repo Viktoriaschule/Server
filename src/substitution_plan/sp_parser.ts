@@ -1,5 +1,5 @@
-import { SubstitutionPlan, Substitution, SubstitutionPlanGrades } from '../utils/interfaces';
-import { getRoomID } from '../utils/rooms';
+import {Substitution, SubstitutionPlan, SubstitutionPlanGroups} from '../utils/interfaces';
+import {getRoomID} from '../utils/rooms';
 import getLocalization from '../utils/localizations';
 
 /**
@@ -11,7 +11,7 @@ export const parseDates = (raw: any): { week: number, date: string, update: stri
     let week = -1;
     let date = new Date(2000, 1, 1).toISOString();
     try {
-        const rawDateInfo = raw.querySelectorAll('div')[0].childNodes[0].rawText
+        const rawDateInfo = raw.querySelectorAll('div')[0].childNodes[0].rawText;
         week = rawDateInfo.slice(-1) === 'A' ? 0 : 1;
         const dateStr = rawDateInfo.split(' ')[0].split('.');
         const dateObject = new Date(`${dateStr[2]}-${dateStr[1]}-${dateStr[0]}`);
@@ -50,9 +50,9 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
     const parsedDates = parseDates(raw);
 
     // Create the data and unparsed objects
-    const grades = ['5a', '5b', '5c', '6a', '6b', '6c', '7a', '7b', '7c', '8a', '8b', '8c', '9a', '9b', '9c', 'ef', 'q1', 'q2']
-    const unparsed: SubstitutionPlanGrades = {};
-    const data: SubstitutionPlanGrades = {};
+    const grades: string[] = getLocalization('grades');
+    const unparsed: SubstitutionPlanGroups = {};
+    const data: SubstitutionPlanGroups = {};
 
     unparsed.other = [];
     grades.forEach((grade: string) => {
@@ -103,8 +103,7 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                     normalTeacher = removeUnusedCharacters(teacherCell.childNodes[0].rawText);
                                     if (teacherCell.querySelectorAll('s').length === 1) {
                                         newTeacher = '';
-                                    }
-                                    else {
+                                    } else {
                                         newTeacher = normalTeacher;
                                     }
                                 }
@@ -126,8 +125,7 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                         if (typeText === 'Trotz Absenz') {
                                             type = 1;
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         normalSubject = removeUnusedCharacters(subjectCell.childNodes[0].rawText).split(' ')[0];
                                         normalCourse = removeUnusedCharacters(subjectCell.childNodes[0].rawText);
                                         // newCourse = normalCourse;
@@ -150,8 +148,7 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                     if (roomCell.querySelectorAll('s').length === 1) {
                                         normalRoom = removeUnusedCharacters(roomCell.childNodes[0].rawText);
                                         newRoom = '';
-                                    }
-                                    else {
+                                    } else {
                                         normalRoom = removeUnusedCharacters(roomCell.childNodes[0].rawText);
                                         newRoom = normalRoom;
 
@@ -179,6 +176,8 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                         } else if (normalRoom != newRoom) {
                                             description = getLocalization('roomChange');
                                         }
+                                    } else {
+                                        description = getLocalization('shift')
                                     }
                                 }
 
@@ -191,21 +190,54 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
                                     description: description,
                                     original: {
                                         subjectID: normalSubject.toLowerCase().replace(/[0-9]/g, ''),
-                                        teacherID: normalTeacher.toLowerCase(),
+                                        participantID: normalTeacher.toLowerCase(),
                                         roomID: getRoomID(normalRoom.toLowerCase().replace(' ', '')),
                                         course: normalCourse ? normalCourse.toLowerCase() : undefined
                                     },
                                     changed: {
                                         subjectID: newSubject.toLowerCase().replace(/[0-9]/g, ''),
-                                        teacherID: newTeacher.toLowerCase(),
+                                        participantID: newTeacher.toLowerCase(),
                                         roomID: getRoomID(newRoom.toLowerCase().replace(' ', '')),
 
                                     }
                                 };
 
                                 data[grade].push(substitution);
-                            });
 
+                                // Add the substitution to the original teacher
+                                const teacher = substitution.original.participantID;
+                                if (!data[teacher]) {
+                                    data[teacher] = [];
+                                }
+                                // clone substitution object
+                                const teacherSubstitution: Substitution = JSON.parse(JSON.stringify(substitution));
+
+                                // Change participant to grade
+                                teacherSubstitution.original.participantID = rawGrades.join('+');
+
+                                // If there is a new teacher, add the substitution also to the new teacher
+                                const changedTeacher = substitution.changed.participantID;
+                                if (changedTeacher.length > 0) {
+                                    if (!data[changedTeacher]) {
+                                        data[changedTeacher] = [];
+                                    }
+
+                                    const teacherChanged = changedTeacher !== teacher;
+
+                                    // clone substitution object
+                                    const changedTeacherSubstitution: Substitution = JSON.parse(JSON.stringify(substitution));
+
+                                    if (!teacherChanged) {
+                                        teacherSubstitution.changed.participantID = rawGrades.join('+');
+                                    } else {
+                                        changedTeacherSubstitution.changed.participantID = rawGrades.join('+');
+                                        data[changedTeacher].push(changedTeacherSubstitution);
+                                    }
+                                }
+
+                                // Add substitution to the teacher
+                                data[teacher].push(teacherSubstitution);
+                            });
                         } catch (e) {
                             console.error('Cannot parse substitution:', i, parsedDates.date, row, e);
 
@@ -246,6 +278,6 @@ const parseSubstitutionPlan = async (raw: any, isDev: boolean): Promise<Substitu
  */
 const removeUnusedCharacters = (text: string): string => {
     return text.replace(/\s\s+/g, ' ').replace('→', '').replace('&nbsp;', '').replace('---', '');
-}
+};
 
 export default parseSubstitutionPlan;

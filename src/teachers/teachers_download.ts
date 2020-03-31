@@ -1,13 +1,13 @@
 import config from '../utils/config';
 import got from 'got';
-import { CookieJar } from 'tough-cookie';
+import {CookieJar} from 'tough-cookie';
 import FormData from 'form-data';
 import path from 'path';
 import fs from 'fs';
-import { getUrl } from '../utils/downloads';
+import {getUrl} from '../utils/downloads';
 import extractData from './teachers_parser';
-import { compareLatestTeachers, setLatestTeachers } from '../history/history';
-import { Teacher } from '../utils/interfaces';
+import {compareLatestTeachers, setLatestTeachers} from '../history/history';
+import {Teacher} from '../utils/interfaces';
 
 const isDev = process.argv.length === 3;
 const pdf_table_extractor = require('pdf-table-extractor');
@@ -36,13 +36,13 @@ const fetchData = (file: string): Promise<void> => {
         const form = new FormData();
         form.append('username', config.username);
         form.append('password', config.password);
-        await got('https://viktoriaschule-aachen.de/index.php', {
+        await got.post('https://viktoriaschule-aachen.de/index.php', {
             cookieJar, body: form
-        });
+        }).catch((e) => console.error('Failed to set credentials:', e));
         const stream = fs.createWriteStream(file);
         got.stream(url, {
-            auth: config.username + ':' + config.password,
-            cookieJar
+            username: config.username, password: config.password,
+            cookieJar: cookieJar,
         }).pipe(stream);
         stream.on('finish', resolve);
     }));
@@ -76,7 +76,7 @@ const download = async (alwaysUpdate = false): Promise<Teacher[] | undefined> =>
         const file = path.join(folder, 'teachers.pdf');
 
         // Fetch and parse the pdf file
-        await fetchData(file);
+        await fetchData(file).catch((e) => console.error(e));
         console.log('Fetched teachers');
 
         const data = await parseData(file);

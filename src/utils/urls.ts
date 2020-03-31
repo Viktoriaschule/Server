@@ -20,7 +20,7 @@ const useSimulation = (key: string): boolean => {
         }
     }
     return false;
-}
+};
 
 
 export const getSubstitutionPlanUrl = (day: number) => {
@@ -28,4 +28,11 @@ export const getSubstitutionPlanUrl = (day: number) => {
         return `${config.debugHost}/substitutionplan/${day}`;
     }
     return `https://www.viktoriaschule-aachen.de/sundvplan/vps/f${day}/subst_001.htm`;
-}
+};
+
+export const getLdapUrl = (username: string) => {
+    if (useSimulation('ldap') || config.testUsers?.includes(username)) {
+        return `${config.debugHost}/ldap`;
+    }
+    return config.ldapUrl;
+};

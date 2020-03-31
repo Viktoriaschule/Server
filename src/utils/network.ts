@@ -9,7 +9,7 @@ import config from './config';
  */
 export const fetchData = async (url: string, auth: boolean): Promise<string> => {
     if (config && auth) {
-        return (await got(url, {auth: config.username + ':' + config.password})).body;
+        return (await got(url, {username: config.username, password: config.password})).body;
     }
     return (await got(url)).body;
 };

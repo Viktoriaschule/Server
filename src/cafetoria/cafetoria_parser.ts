@@ -1,4 +1,4 @@
-import entities from 'entities';
+import {decodeHTML} from 'entities';
 import {Cafetoria, CafetoriaDay, Menu} from '../utils/interfaces';
 
 /**
@@ -30,7 +30,7 @@ const extractData = (data: any, saldoIsNull = false): Cafetoria => {
             let extraTime: string = '';
             for (let i = 4; i > 0; i--) {
                 let text = names[day * 4 + i - 1].childNodes.length >= 1 ? names[day * 4 + i - 1].childNodes.map((a: any) => a.rawText).join(' ').replace('  ', ' ') : '';
-                text = entities.decodeHTML(text);
+                text = decodeHTML(text);
                 let time: string = '';
                 if (text.includes('bis') && text.includes(' Uhr ') && text.includes('abholen')) {
                     extraTime = text.replace('Menü bitte', '').replace('abholen.', '').replace('.', ':').trim();

@@ -1,22 +1,22 @@
 export interface Timetables {
     date: string;
     /** Grades in lowercase */
-    grades: TimetableGrades
+    groups: TimetableGroups
 }
 
-export interface TimetableGrades {
+export interface TimetableGroups {
     /** Grades in lowercase */
-    [grade: string]: Timetable
+    [group: string]: Timetable
 }
 
 // Timetable
 export interface Timetable {
-    /** Grade in lowercase */
-    grade: string;
+    /** group in lowercase */
+    group: string;
     /** ISO 8601 */
     date: string;
     data: {
-        grade: string;
+        group: string;
         days: Day[]
     }
 }
@@ -42,11 +42,15 @@ export interface Subject {
     courseID: string;
     /** subject shorthand for example "e"; "s" */
     subjectID: string;
-    /** teacher shorthand (lowercase). Multiple teachers for one subject are separated with '+'.
+    /** Participant id
+     *
+     * For students it is the teacher shorthand (lowercase). Multiple teachers for one subject are separated with '+'.
      *
      * Example: 'him+kan' or only 'him'
+     *
+     * And for teachers the is is the grade (lowercase). Multiple grades are separated with a '+'
      */
-    teacherID: string;
+    participantID: string;
     /** lowercase */
     roomID: string;
     /** 0 => A; 1 => B; 2 => AB */
@@ -54,21 +58,29 @@ export interface Subject {
     block: string;
 }
 
-
-export interface SubstitutionPlan {
+export interface SubstitutionPlanInfo {
     /** ISO 8601 */
     date: string;
     /** ISO 8601 */
     updated: string;
     /** 0 => A; 1 => B */
     week: number;
-    unparsed: SubstitutionPlanGrades;
-    data: SubstitutionPlanGrades
 }
 
-export interface SubstitutionPlanGrades {
-    /** Grades in lowercase */
-    [grade: string]: Substitution[]
+export interface SubstitutionPlan extends SubstitutionPlanInfo {
+    unparsed: SubstitutionPlanGroups;
+    data: SubstitutionPlanGroups
+}
+
+/** The substitution plan for a specific group */
+export interface SubstitutionPlanGroup extends SubstitutionPlanInfo {
+    unparsed: Substitution[];
+    data: Substitution[];
+}
+
+export interface SubstitutionPlanGroups {
+    /** In lowercase (the grade for students, the teacher id for teachers) */
+    [group: string]: Substitution[]
 }
 
 export interface Substitution {
@@ -88,7 +100,7 @@ export interface Substitution {
 
 export interface SubstitutionDetails {
     /** teacher in lowercase */
-    teacherID: string;
+    participantID: string;
     /**subject in lowercase (without number) */
     subjectID: string;
     /**room in lowercase (without blanks & max 3 letters) */
@@ -105,15 +117,15 @@ export interface UpdateData {
     subjects: string;
     minAppLevel: number;
     aixformation: string;
-    /** Grade in lowercase */
-    grade: string;
+    /** group in lowercase (the grade for students and the teacher id for teachers  */
+    group: string;
 }
 
 export interface Tags {
-    /** Grade in lowercase */
-    grade: string;
+    /** group in lowercase (the grade for students and teacher id for teachers  */
+    group: string;
     /** 1 (pupil); 2 (teacher); 4 (developer); 8 (other) */
-    group: number;
+    userType: number;
     selected: Selection[]; // course list
     exams: Exam[]; // course list
     cafetoria: CafetoriaLogin;
@@ -133,10 +145,10 @@ export interface LdapUser {
 
 export interface User {
     username: string;
-    /** Grade in lowercase */
-    grade: string;
+    /** group in lowercase (the grade for students and teacher id for teachers */
+    group: string;
     /** 1 (pupil); 2 (teacher); 4 (developer); 8 (other) */
-    group: number;
+    userType: number;
     /** ISO Date */
     last_active: string | undefined;
 }
@@ -153,13 +165,6 @@ export interface Exam {
     timestamp: string;
 }
 
-export interface Course {
-    courseID: string;
-    subjectIDs: string[];
-    /** ISO Date */
-    timestamp: string;
-}
-
 export interface Device {
     os: string;
     appVersion: string;
@@ -167,20 +172,6 @@ export interface Device {
     package: string;
     /** ISO-Date */
     lastActive: string;
-}
-
-/** day index list with notification UPDATED_DAY-DATE_SINCE_EPOCHE-TEXT_HASH
- *
- *   example: 28-18229-d8345b3416426541733f126ade0de8b7
- */
-export interface LastNotifications {
-    username: string;
-    day1: string;
-    day2: string;
-}
-
-export interface Settings {
-    spNotifications: boolean;
 }
 
 export interface Cafetoria {

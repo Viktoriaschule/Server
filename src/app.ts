@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import basicAuth from 'express-basic-auth';
-import authorizer, {authRouter} from './authentication/auth_butler';
+import {addUserInfo, authRouter} from './authentication/auth_butler';
 import {subjectsRouter, updateSubjects} from './subjects/subjects_butler';
 import historyRouter from './history/history_butler';
 import updateRouter from './updates/update_butler';
@@ -24,7 +23,9 @@ app.use(cors());
 // Can't be used with authentication
 app.use('/aixformation/images', express.static(path.resolve('tmp', 'images')));
 
-app.use(basicAuth({authorizer: authorizer, challenge: true, authorizeAsync: true}));
+app.use(addUserInfo);
+
+//app.use(basicAuth({authorizer: authorizer, challenge: true, authorizeAsync: true}));
 
 app.get('/', (req, res) => {
     res.send('Hello world!');

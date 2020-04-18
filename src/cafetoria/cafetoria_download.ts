@@ -1,12 +1,12 @@
 import config from '../utils/config';
 import request from 'request';
-import { parse } from 'node-html-parser';
+import {parse} from 'node-html-parser';
 import extractData from './cafetoria_parser';
-import { Cafetoria } from '../utils/interfaces';
-import { compareLatestCafetoria, setLatestCafetoria } from '../history/history';
-import { initFirebase } from "../utils/firebase";
-import { initDatabase } from "../utils/database";
-import { sendNotifications } from './cafetoria_notifications';
+import {Cafetoria} from '../utils/interfaces';
+import {compareLatestCafetoria, setLatestCafetoria} from '../history/history';
+import {initFirebase} from "../utils/firebase";
+import {initDatabase} from "../utils/database";
+import {sendNotifications} from './cafetoria_notifications';
 
 const isDev = process.argv.length === 3;
 
@@ -55,6 +55,9 @@ const fetchData = async (id: string, pin: string): Promise<string> => {
                                 url: 'https://www.opc-asp.de/vs-aachen/menuplan.php?KID=' + id,
                                 jar: cookieJar
                             }, (error, response, body) => {
+                                if (!response) {
+                                    reject(error)
+                                }
                                 if (response.statusCode !== 200) {
                                     reject('Invalid cafetoria credentials');
                                     return;

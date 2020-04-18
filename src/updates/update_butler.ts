@@ -1,8 +1,6 @@
 import express from 'express';
 import crypto from 'crypto';
 import {UpdateData} from '../utils/interfaces';
-import {getGroup} from '../authentication/ldap';
-import getAuth from '../utils/auth';
 import {getUpdates} from './update_db';
 import {getCafetoriaLogin} from '../cafetoria/cafetoria_db';
 
@@ -11,13 +9,11 @@ const updatesRouter = express.Router();
 // Sends the update data
 updatesRouter.get('/', async (req, res) => {
     const allUpdates = await getUpdates();
-    const auth = getAuth(req);
 
-    const group = (await getGroup(auth.username, auth.password)).group;
-    const timetable = getHash((allUpdates.get('timetable') || '') + group);
-    const substitutionPlan = getHash((allUpdates.get('substitution_plan_0') || '') + group);
+    const timetable = getHash((allUpdates.get('timetable') || '') + req.user.group);
+    const substitutionPlan = getHash((allUpdates.get('substitution_plan_0') || '') + req.user.group);
 
-    const cafetoriaLogin = await getCafetoriaLogin(auth.username);
+    const cafetoriaLogin = await getCafetoriaLogin(req.user.username);
     let cafetoria = allUpdates.get('cafetoria') || '';
     cafetoria += cafetoriaLogin.id || '';
     cafetoria += cafetoriaLogin.password || '';
@@ -31,7 +27,7 @@ updatesRouter.get('/', async (req, res) => {
         subjects: allUpdates.get('subjects') || '',
         aixformation: allUpdates.get('aixformation') || '',
         minAppLevel: 27,
-        group: group,
+        group: req.user.group,
     };
     return res.json(updates);
 });

@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import {CafetoriaLogin, Device, Exam, LdapUser, Selection, Tags} from '../utils/interfaces';
 import getAuth, {getUserType} from '../utils/auth';
-import {getGroup} from '../authentication/ldap';
+import {getLdapUser} from '../authentication/ldap';
 import {
     getExam,
     getExams,
@@ -41,11 +41,11 @@ tagsRouter.get('/', async (req, res) => {
 });
 
 export const registerUser = async (username: string, password: string, user?: LdapUser): Promise<void> => {
-    const group = await getGroup(username, password, user);
+    const _user = await getLdapUser(username, password, user);
     setUser({
         username: username,
-        group: group?.group || '',
-        userType: getUserType(username, group?.isTeacher || false),
+        group: _user?.group || '',
+        userType: getUserType(username, user?.isTeacher || false),
         last_active: undefined,
     });
 };
@@ -53,8 +53,11 @@ export const registerUser = async (username: string, password: string, user?: Ld
 tagsRouter.post('/', async (req, res) => {
 
     // Update the user
-    const auth = getAuth(req);
-    await registerUser(auth.username, auth.password);
+    await registerUser(req.user.username, req.user.password, {
+        isTeacher: req.user.isTeacher,
+        grade: req.user.group,
+        status: true,
+    });
 
     const errors = [];
 
@@ -63,7 +66,7 @@ tagsRouter.post('/', async (req, res) => {
         const device: Device = req.body.device;
         if (device.appVersion && device.firebaseId && device.package && device.os) {
             device.lastActive = new Date().toISOString();
-            setDevice(auth.username, device);
+            setDevice(req.user.username, device);
 
             // Update settings if they are set
             if (req.body.device.settings) {
@@ -81,9 +84,9 @@ tagsRouter.post('/', async (req, res) => {
     if (req.body.cafetoria) {
         const cafetoriaLogin: CafetoriaLogin = req.body.cafetoria;
         if (cafetoriaLogin.timestamp) {
-            const dbCafetoriaLogin = await getCafetoriaLogin(auth.username);
+            const dbCafetoriaLogin = await getCafetoriaLogin(req.user.username);
             if (Date.parse(cafetoriaLogin.timestamp) > Date.parse(dbCafetoriaLogin.timestamp)) {
-                setCafetoriaLogin(auth.username, cafetoriaLogin);
+                setCafetoriaLogin(req.user.username, cafetoriaLogin);
             }
         } else {
             res.status(400);
@@ -96,10 +99,10 @@ tagsRouter.post('/', async (req, res) => {
         const selections: Selection[] = req.body.selected;
         for (let selection of selections) {
             if (selection.block && selection.timestamp) {
-                const dbSelection = await getSelection(auth.username, selection.block);
+                const dbSelection = await getSelection(req.user.username, selection.block);
                 selection.timestamp = new Date(Date.parse(selection.timestamp)).toISOString();
                 if (!dbSelection || Date.parse(selection.timestamp) > Date.parse(dbSelection.timestamp)) {
-                    setSelection(auth.username, selection);
+                    setSelection(req.user.username, selection);
                 }
             } else {
                 res.status(400);
@@ -113,9 +116,9 @@ tagsRouter.post('/', async (req, res) => {
         const exams: Exam[] = req.body.exams;
         for (let exam of exams) {
             if (exam.subject && exam.timestamp) {
-                const dbExam = await getExam(auth.username, exam.subject);
+                const dbExam = await getExam(req.user.username, exam.subject);
                 if (!dbExam || Date.parse(exam.timestamp) > Date.parse(dbExam.timestamp)) {
-                    setExam(auth.username, exam);
+                    setExam(req.user.username, exam);
                 }
             } else {
                 res.status(400);

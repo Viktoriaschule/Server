@@ -1,8 +1,6 @@
 import express from 'express';
 import download from './tt_download';
 import {Timetables} from '../utils/interfaces';
-import getAuth from '../utils/auth';
-import {getGroup} from '../authentication/ldap';
 import {shouldForceUpdate} from '../utils/data';
 import {clearTimetables, getTimetableGroup, setTimetableGroup} from "./tt_db";
 
@@ -10,11 +8,9 @@ export const timetableRouter = express.Router();
 const defaultValue: Timetables = {date: new Date().toISOString(), groups: {}};
 
 timetableRouter.get('/', async (req, res) => {
-    const auth = getAuth(req);
-    const group = await getGroup(auth.username, auth.password);
-    return res.json((await getTimetableGroup(group.group)) || {
+    return res.json((await getTimetableGroup(req.user.group)) || {
         date: new Date().toISOString(),
-        group: group.group,
+        group: req.user.group,
         data: {},
     });
 });

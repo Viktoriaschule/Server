@@ -61,7 +61,7 @@ export const removeOldDevices = async () => {
     // Clean up old users
     const users: User[] = await getUsers();
     const removedUsers: User[] = [];
-    for (var user of users) {
+    for (const user of users) {
         const _devices = await getDevices(user.username);
         const userExists = await checkUsername(user.username);
         const diff = (new Date().getTime() / 1000) - (new Date(user.last_active || '').getTime() / 1000);

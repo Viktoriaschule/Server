@@ -1,12 +1,9 @@
-import crypto from 'crypto';
 import request from 'request';
 import config from '../utils/config';
 import {LdapUser} from '../utils/interfaces';
-import {getDbResults, runDbCmd} from '../utils/database';
 import {getUser} from '../tags/tags_db';
 import {getLdapUrl} from '../utils/urls';
 import {isTeacher} from "../utils/auth";
-import {registerUser} from "../tags/tags_butler";
 
 const ldapRequest = (username: string, password: string): Promise<LdapUser> => {
     return new Promise<LdapUser>((resolve, reject) => {
@@ -15,10 +12,7 @@ const ldapRequest = (username: string, password: string): Promise<LdapUser> => {
         try {
             request.get(`${url}/login`, options, (err, res, body) => {
                 if (err) {
-                    if (err.code === 'ETIMEDOUT') {
-                        err = 'timeout';
-                    }
-                    console.log('Failed to check login:', err);
+                    console.log('Failed to check login:', err.code);
                     reject();
                 } else {
                     try {
@@ -36,33 +30,6 @@ const ldapRequest = (username: string, password: string): Promise<LdapUser> => {
     });
 };
 
-const checkLogin = async (username: string, password: string): Promise<boolean> => {
-    const hashed = crypto.createHash('sha256').update(password).digest('hex');
-    const status = await new Promise<boolean | undefined>(async (resolve, reject) => {
-        ldapRequest(username, password)
-            .then(async (user) => {
-                if (user.status) {
-                    runDbCmd(`INSERT INTO users_login VALUES (\'${username}\', '${hashed}') ON DUPLICATE KEY UPDATE password = '${hashed}';`);
-                    await registerUser(username, password);
-                } else {
-                    runDbCmd(`DELETE FROM users_login WHERE username='${username}';`);
-                }
-                resolve(user.status);
-            })
-            .catch(async (_) => {
-                resolve(undefined);
-            });
-
-    });
-
-    if (status === undefined) {
-        const userLogin = (await getDbResults(`SELECT * FROM users_login where username="${username}";`))[0];
-        return userLogin ? (userLogin.password === hashed) : false;
-    }
-
-    return status;
-};
-
 export const checkUsername = async (username: string): Promise<boolean> => {
     return new Promise<boolean>((resolve, reject) => {
         const options: request.CoreOptions = {
@@ -76,7 +43,7 @@ export const checkUsername = async (username: string): Promise<boolean> => {
                     if (err.code === 'ETIMEDOUT') {
                         err = 'timeout';
                     }
-                    console.log('Failed to check username:', err);
+                    console.log('Failed to check username:', err.code);
                     resolve(true);
                 } else {
                     const status = body !== 'false';
@@ -90,7 +57,7 @@ export const checkUsername = async (username: string): Promise<boolean> => {
 };
 
 /** Returns the user group (The grade for students and teacherID for teachers) **/
-export const getGroup = async (username: string, password: string, ldapUser?: LdapUser): Promise<{ group: string, isTeacher: boolean }> => {
+export const getLdapUser = async (username: string, password: string, ldapUser?: LdapUser): Promise<{ group: string, isTeacher: boolean }> => {
     const user = ldapUser || await new Promise<LdapUser | undefined>(async (resolve, reject) => {
         ldapRequest(username, password)
             .then((user) => {
@@ -100,6 +67,10 @@ export const getGroup = async (username: string, password: string, ldapUser?: Ld
                 resolve(undefined);
             });
     });
+
+    if (user && !user.status) {
+        return {group: '', isTeacher: false};
+    }
 
     if (user && user.isTeacher) {
         return {group: username, isTeacher: true};
@@ -112,5 +83,3 @@ export const getGroup = async (username: string, password: string, ldapUser?: Ld
 
     return {group: user.grade, isTeacher: false};
 };
-
-export default checkLogin;

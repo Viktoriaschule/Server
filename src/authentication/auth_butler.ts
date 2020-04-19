@@ -1,21 +1,55 @@
-import checkLogin from './ldap';
-import express from 'express';
-import {AsyncAuthorizerCallback} from 'express-basic-auth';
+import {getLdapUser} from './ldap';
+import express, {Request} from 'express';
+import getAuth from "../utils/auth";
+import {registerUser} from "../tags/tags_butler";
+
+// Extend the default request
+declare global {
+    namespace Express {
+        export interface Request {
+            user: {
+                username: string,
+                password: string,
+                group: string,
+                isTeacher: boolean,
+            }
+        }
+    }
+}
 
 export const authRouter = express.Router();
 
 authRouter.get('/', (req, res) => {
-    return res.json({status: true});
+    return res.json({
+        status: true,
+        group: req.user.group,
+        isTeacher: req.user.isTeacher,
+    });
 });
 
-authRouter.get('/:username/:password', async (req, res) => {
-    const status = await checkLogin(req.params.username, req.params.password);
-    return res.json({status: status});
-});
+export async function addUserInfo(req: Request, res: any, next: () => any) {
+    const auth = getAuth(req);
+    const user = await getLdapUser(auth.username, auth.password);
 
-async function authorizer(username: string, password: string, callback: AsyncAuthorizerCallback): Promise<void> {
-    const status = await checkLogin(username, password);
-    callback(null, status);
+    if (user.group != '') {
+        req.user = {
+            username: auth.username,
+            password: auth.password,
+            group: user.group,
+            isTeacher: user.isTeacher,
+        }
+
+        await registerUser(auth.username, auth.password, {
+            grade: user.group,
+            isTeacher: user.isTeacher,
+            status: true
+        });
+
+        next();
+    } else {
+        res.status(401);
+        const challengeString = 'Basic';
+        res.set('WWW-Authenticate', challengeString);
+        res.json({error: 'unauthorized'});
+    }
 }
-
-export default authorizer;

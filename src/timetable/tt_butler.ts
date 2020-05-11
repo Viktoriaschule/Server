@@ -3,7 +3,6 @@ import download from './tt_download';
 import {Subject, Timetable, TimetableGroups, Timetables} from '../utils/interfaces';
 import {shouldForceUpdate} from '../utils/data';
 import {clearTimetables, getTimetableGroup, setTimetableGroup} from "./tt_db";
-import config from "../utils/config";
 import bodyParser from "body-parser";
 
 export const timetableRouter = express.Router();
@@ -20,12 +19,6 @@ timetableRouter.get('/', async (req, res) => {
 });
 
 timetableRouter.post('/', async (req, res) => {
-    const key = req.query.key;
-    if (key !== config.timetableKey) {
-        res.status(401);
-        res.json({'error': 'Missing auth key'});
-        return;
-    }
 
     const ids: string[] = req.body?.ids ?? [];
 
@@ -35,6 +28,10 @@ timetableRouter.post('/', async (req, res) => {
     const loadedTimetables: TimetableGroups = {};
     for (const id of ids) {
         const group = id.split('-')[0];
+
+        if (!req.user.isTeacher && group !== req.user.group) {
+            continue;
+        }
 
         // Load the timetable from the database if not loaded yet
         if (!loadedTimetables[group]) {
@@ -56,6 +53,34 @@ timetableRouter.post('/', async (req, res) => {
 
     return res.json({subjects: subjects});
 });
+
+timetableRouter.get('/unit', async (req, res) => {
+
+    const group: string = req.query.group.toString();
+    const day: number = parseInt(req.query.day.toString());
+    const unit: number = parseInt(req.query.unit.toString());
+
+    if (!req.user.isTeacher && group !== req.user.group) {
+        res.status(405);
+        res.json({error: 'Only teachers are allowed to request units of other groups'});
+        return;
+    }
+
+    const timetable = await getTimetableGroup(group);
+    if (timetable) {
+        try {
+            res.json({subjects: timetable.data.days[day].units[unit].subjects});
+        } catch {
+            res.status(400);
+            res.json({error: 'There is not unit for the given params'});
+        }
+        return;
+    }
+
+    res.status(400);
+    res.json({error: 'There is no timetable for the group'});
+});
+
 
 /**
  * Updates the timetable

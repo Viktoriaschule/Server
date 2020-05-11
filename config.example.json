@@ -7,7 +7,6 @@
   "emailUser": "TEST@EXAMPLE.de",
   "emailKey": "EMAIL_KEY",
   "apiEndpoint": "https://api.vsa.2bad2c0.de/",
-  "timetableKey": "RANDOM_KEY_TO_GET_SUBJECTS_OF_ALL_GRADES",
   "developers": [
     "USERNAME",
     "USERNAME"

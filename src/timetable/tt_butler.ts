@@ -4,6 +4,7 @@ import {Subject, Timetable, TimetableGroups, Timetables} from '../utils/interfac
 import {shouldForceUpdate} from '../utils/data';
 import {clearTimetables, getTimetableGroup, setTimetableGroup} from "./tt_db";
 import bodyParser from "body-parser";
+import {isDeveloper} from "../utils/auth";
 
 export const timetableRouter = express.Router();
 timetableRouter.use(bodyParser.json());
@@ -18,7 +19,7 @@ timetableRouter.get('/', async (req, res) => {
     });
 });
 
-timetableRouter.post('/', async (req, res) => {
+timetableRouter.post('/global', async (req, res) => {
 
     const ids: string[] = req.body?.ids ?? [];
 
@@ -54,31 +55,20 @@ timetableRouter.post('/', async (req, res) => {
     return res.json({subjects: subjects});
 });
 
-timetableRouter.get('/unit', async (req, res) => {
+timetableRouter.get('/:group', async (req, res) => {
 
-    const group: string = req.query.group.toString();
-    const day: number = parseInt(req.query.day.toString());
-    const unit: number = parseInt(req.query.unit.toString());
-
-    if (!req.user.isTeacher && group !== req.user.group) {
+    console.log(req.user.group);
+    if (!req.user.isTeacher && req.params.group !== req.user.group && !isDeveloper(req.user.username)) {
         res.status(405);
         res.json({error: 'Only teachers are allowed to request units of other groups'});
         return;
     }
 
-    const timetable = await getTimetableGroup(group);
-    if (timetable) {
-        try {
-            res.json({subjects: timetable.data.days[day].units[unit].subjects});
-        } catch {
-            res.status(400);
-            res.json({error: 'There is not unit for the given params'});
-        }
-        return;
-    }
-
-    res.status(400);
-    res.json({error: 'There is no timetable for the group'});
+    return res.json((await getTimetableGroup(req.params.group)) || {
+        date: new Date().toISOString(),
+        group: req.params.group,
+        data: {},
+    });
 });
 
 

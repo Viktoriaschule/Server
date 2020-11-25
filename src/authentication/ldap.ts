@@ -7,6 +7,10 @@ import {isTeacher} from "../utils/auth";
 
 const ldapRequest = (username: string, password: string): Promise<LdapUser> => {
     return new Promise<LdapUser>((resolve, reject) => {
+        // Ignore ldap right now
+        reject();
+        return;
+
         const options: request.CoreOptions = {auth: {username: username, password: password}, timeout: 500};
         const url = getLdapUrl(username);
         try {
@@ -32,6 +36,10 @@ const ldapRequest = (username: string, password: string): Promise<LdapUser> => {
 
 export const checkUsername = async (username: string): Promise<boolean> => {
     return new Promise<boolean>((resolve, reject) => {
+        // ignore ldap right now
+        resolve(true);
+        return;
+
         const options: request.CoreOptions = {
             auth: {username: config.ldapUsername, password: config.ldapPassword},
             timeout: 1500
@@ -58,7 +66,8 @@ export const checkUsername = async (username: string): Promise<boolean> => {
 
 /** Returns the user group (The grade for students and teacherID for teachers) **/
 export const getLdapUser = async (username: string, password: string, ldapUser?: LdapUser): Promise<{ group: string, isTeacher: boolean }> => {
-    const user = ldapUser || await new Promise<LdapUser | undefined>(async (resolve, reject) => {
+    // Ignore ldap right now
+    const user = ldapUser /**|| await new Promise<LdapUser | undefined>(async (resolve, reject) => {
         ldapRequest(username, password)
             .then((user) => {
                 resolve(user);
@@ -66,7 +75,7 @@ export const getLdapUser = async (username: string, password: string, ldapUser?:
             .catch((_) => {
                 resolve(undefined);
             });
-    });
+    });*/
 
     if (user && !user.status) {
         return {group: '', isTeacher: false};
